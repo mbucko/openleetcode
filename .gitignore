@@ -1,0 +1,46 @@
+src/gui/geoip/GeoIP.dat
+src/gui/geoip/GeoIP.dat.gz
+src/qbittorrent
+src/qbittorrent-nox
+src/release
+src/debug
+src/base/version.h
+CMakeLists.txt.user*
+qbittorrent.pro.user*
+conf.pri
+Makefile*
+*.pyc
+*.log
+
+# Compiled object files
+*.o
+*.pdb
+*.exe
+*.dll
+
+# Generated MOC, resource and UI files
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.moc
+*.qm
+.DS_Store
+.qmake.stash
+src/qbittorrent.app
+*.dmg
+
+#Autotools junk
+aclocal.m4
+autom4te.cache/*
+config.status
+src/icons/qbt-theme/build-icons/node_modules/
+src/icons/skin/build-icons/node_modules/
+src/icons/skin/build-icons/icons/*.png
+
+# CMake build directory
+bin/
+build/
+*.vcxproj
+*.vcxproj.filters
+*.sln
