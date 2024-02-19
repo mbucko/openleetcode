@@ -1,15 +1,9 @@
-add_executable(openleetcode)
-
-target_sources(openleetcode PRIVATE
-    # headers
-
-    # sources
-    main.cpp
-
-    # resources
+set(PYTHON_SCRIPTS
+    main.py
+    resultsdiffer.py
+    testrunner.py
 )
 
-install(TARGETS openleetcode
-  CONFIGURATIONS Debug
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+foreach(PYTHON_SCRIPT IN LISTS PYTHON_SCRIPTS)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PYTHON_SCRIPT} ${PROJECT_BUILDS_DIR}/${PYTHON_SCRIPT} COPYONLY)
+endforeach()
