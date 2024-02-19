@@ -44,3 +44,5 @@ build/
 *.vcxproj
 *.vcxproj.filters
 *.sln
+problem_builds/
+.vscode/
