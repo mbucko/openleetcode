@@ -53,6 +53,8 @@ For C++ the supported types are: integral types, strings, vector of integral typ
 ### List of LeetCode Problems
 * TwoSum
 * LongestSubstringWithoutRepeatingCharacters
+* NumberOfIslands
+
 The problem names are automatically extracted from the folder names inside **data/problems/**.
 
 ### Note
