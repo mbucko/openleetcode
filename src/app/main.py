@@ -14,6 +14,7 @@ import functionextractor
 # Rename main.py to openleetcode.py
 # add option to run a single testcase
 # print out the stdout and stderr of the failed testcase only
+# List the problems in --help
 
 TESTCAST_OUTPUT_DIR = "testcase_output"
 
@@ -44,7 +45,7 @@ def main():
                         metavar='problem_name',
                         default="TwoSum",
                         type=str,
-                        help="name of the problem to build and test. "
+                        help="Name of the problem to build and test. "
                         "Example: TwoSum, LongestSubstringWithoutRepeatingCharacters")
     parser.add_argument("--verbose", "-v",
                         action="store_true",
