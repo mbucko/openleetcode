@@ -6,6 +6,7 @@ import re
 
 from datetime import datetime
 
+import logger
 import resultsdiffer
 
 def sort_key(file):
@@ -16,10 +17,11 @@ def sort_key(file):
     return file
 
 def printSuccess(testcase_name):
+    print(logger.green(testcase_name + ": SUCCESS"))
     print(f"\033[92m{testcase_name}: SUCCESS\033[0m")
 
 def printFailure(testcase_name, message):
-    print(f"\033[91m{testcase_name}: FAILURE - {message}\033[0m")
+    print(logger.red(f"{testcase_name}: FAILURE - {message}"))
 
 def getTestcaseName(file):
     return file[:-5]
