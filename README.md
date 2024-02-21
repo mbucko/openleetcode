@@ -15,7 +15,7 @@ python.exe problem_builds\main.py --problem_builds_dir ./problem_builds --langua
 
 ### How To Use
 The above example runs **TwoSum** problem using **C++**.
-After the build succeeds the following directory structure will be generated
+After the build succeeds the following directory structure will be generated in the folder specified by ``--problem_builds_dir`` flag. In this example it's a folder called ``problem_builds`` as follows:.
 
 - problem_builds
   - problems
@@ -56,6 +56,22 @@ For C++ the supported types are: integral types, strings, vector of integral typ
 * NumberOfIslands
 
 The problem names are automatically extracted from the folder names inside **data/problems/**.
+
+### Usage
+```text
+$ python main.py --help
+OpenLeetCode problem builder
+
+options:
+  -h, --help            show this help message and exit
+  --problem_builds_dir dir, -d dir
+                        Path to a directory with the problems. Usually ./problem_builds/ directory
+  --language {cpp}, -l {cpp}
+                        The programming language
+  --problem problem_name, -p problem_name
+                        Name of the problem to build and test. Example: TwoSum
+  --verbose, -v         Print verbose output
+```
 
 ### Note
 Curently only C++ is supported but the framework is setup such that other languages can be added. Also, the question description and the solution is yet to be worked on.
