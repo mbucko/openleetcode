@@ -35,9 +35,11 @@ def compare(testcase_filename, file_actual, order = True):
         else:
             return -1, f"Expected value is not equal to the actual value. Expected: {expected}, Actual: {actual}"
     except Exception as e:
-        return -1, f"Error comparing the results: {e.msg}. Expected: {expected}, Actual: {actual}"
+        return -1, f"Error comparing the results. Expected: {expected}, Actual: {actual}"
     
 def diffList(expected, actual, order):
+    if len(expected) != len(actual):
+        return False
     if order:
         return [i for i in range(len(expected)) if expected[i] == actual[i]]
     else:
