@@ -27,10 +27,13 @@ After the build succeeds the following directory structure will be generated in 
         - TestCase1.test
         - TestCase2.test
         - ...
+      - description.md
     - launguage
       - cpp
 
 Just like for LeetCode you have one file where you solve the problem. For example, for the problem called TwoSum there is **problem_builds/problems/TwoSum/cpp/solution.cpp**. To add new test cases you can create a file in **problem_builds/problems/TwoSum/testcases/** directory with the extension **.test** and your solution will be automatically tested against it.
+
+The problem is a LeetCode problem description in the ***description.md*** file location in the directory for each problem. For example ***problem_builds/problems/TwoSum/description.md***.
 
 The format of the .test files are as follows
 
