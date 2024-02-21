@@ -5,20 +5,27 @@
 #include <sstream>
 #include <string>
 
+#include "typetraits.h"
+
 struct Printer {
-    // print all integral types
-    template <typename U,
-              typename std::enable_if_t<std::is_integral_v<U>, int> = 0>
-    static void toString(const U& value) {
+    template <typename T,
+              typename std::enable_if_t<std::is_integral_v<T>, int> = 0>
+    static std::string toString(const T& value) {
         std::stringstream ss;
         ss << value;
         return ss.str();
     }
 
-    // print vector of all integral types
-    template <typename U,
-              typename std::enable_if_t<std::is_integral_v<typename U::value_type>, int> = 0>
-    static std::string toString(const U& value) {
+    template <typename T,
+              typename std::enable_if_t<std::is_same_v<std::string, T>,
+                                        int> = 0>
+    static std::string toString(const T& value) {
+        return value;
+    }
+
+    template <typename T,
+              typename std::enable_if_t<is_vector_type<T>::value, int> = 0>
+    static std::string toString(const T& value) {
         std::stringstream ss;
         ss << "[";
         for (size_t i = 0; i < value.size(); ++i) {

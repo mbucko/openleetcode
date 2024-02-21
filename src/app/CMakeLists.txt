@@ -1,4 +1,5 @@
 set(PYTHON_SCRIPTS
+    functionextractor.py
     main.py
     resultsdiffer.py
     testrunner.py

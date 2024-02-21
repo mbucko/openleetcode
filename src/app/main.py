@@ -2,10 +2,12 @@
 
 import argparse
 import os
+import re
 import sys
 import shutil
 
 import testrunner
+import functionextractor
 
 TESTCAST_OUTPUT_DIR = "testcase_output"
 
@@ -26,7 +28,7 @@ def main():
                         default="TwoSum",
                         type=str,
                         help="name of the problem to build and test. "
-                        "Example: TwoSum")
+                        "Example: TwoSum, LongestSubstringWithoutRepeatingCharacters")
     
     args = parser.parse_args()
 
@@ -49,7 +51,7 @@ def main():
         sys.exit(1)
 
         
-    src_dir = os.path.join(problem_dir, args.language)
+    src_dir = os.path.abspath(os.path.join(problem_dir, args.language))
     if not os.path.isdir(src_dir):
         print(f"The directory {src_dir} does not exist. "
               "This usually happen when the language is not supported. "
@@ -73,6 +75,17 @@ def main():
     # Run the cmake in the src_dir
     os.chdir(src_dir)
 
+    solution_file_name = os.path.join(src_dir, "solution.cpp")
+    solution_function_file_name = os.path.join(src_dir, "solutionfunction.h")
+    ret = functionextractor.get_function(solution_file_name,
+                                         solution_function_file_name)
+    print(f"Extracted function name: {ret}")
+    print(f"Writing the function name to {solution_function_file_name}")
+
+    if not ret:
+        print(f"Could not extract the function name from {solution_file_name}.")
+        sys.exit(1)
+
     #TODO: Hide the output of the system commands unless they error out
     if os.system("cmake -B build") != 0:
         print("CMake failed!")
@@ -93,14 +106,15 @@ def main():
               "Check the problem_builds_dir and problem arguments.")
         sys.exit(1)
 
-    exe_file = os.path.abspath(os.path.join(bin_dir, f"solution_{args.language}.exe"))
+    exe_file = os.path.abspath(os.path.join(bin_dir,
+                                            f"solution_{args.language}.exe"))
     
     if not os.path.isfile(exe_file):
         print(f"The file {exe_file} does not exist. "
               "Check the problem_builds_dir and problem arguments.")
         sys.exit(1)
     
-    testcases_dir = os.path.abspath(os.path.join("../testcases"))
+    testcases_dir = os.path.abspath("../testcases")
 
     if not os.path.isdir(testcases_dir):
         print(f"The directory {testcases_dir} does not exist. "
