@@ -15,6 +15,8 @@ add_executable(solution_cpp)
 
 target_sources(solution_cpp PRIVATE
     # headers
+    binder.h
+    parser.h
     printer.h
     problemtest.h
     solutionwrapper.h
