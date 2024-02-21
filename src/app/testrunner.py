@@ -6,6 +6,12 @@ from datetime import datetime
 
 import resultsdiffer
 
+def printSuccess(testcase_name):
+    print(f"\033[92m{testcase_name}: SUCCESS\033[0m")
+
+def printFailure(testcase_name, message):
+    print(f"\033[91m{testcase_name}: FAILURE - {message}\033[0m")
+
 def getTestcaseName(file):
     return file[:-5]
 
@@ -27,15 +33,15 @@ def runTests(exec_filename, testcase_dir, output_file_dir, problem_name):
         input_filename = os.path.abspath(os.path.join(testcase_dir, file))
         ret, message = runTest(exec_filename, input_filename, output_filename)
         if ret != 0:
-            print(f"{test_case_name}: FAILURE - {message}")
+            printFailure(test_case_name, message)
             return
         
         ret, message = resultsdiffer.compare(input_filename, output_filename)
         if ret != 0:
-            print(f"{test_case_name}: FAILURE - {message}")
+            printFailure(test_case_name, message)
             return
 
-        print(f"{test_case_name}: SUCCESS")
+        printSuccess(test_case_name)
 
 def runTest(exec_filename, testcase_filename, output_filename):
     if not os.path.isfile(exec_filename):
