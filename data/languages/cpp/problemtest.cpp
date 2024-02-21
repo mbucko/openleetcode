@@ -30,10 +30,9 @@ ProblemTest::ProblemTest(std::ifstream in, std::ofstream out)
 
 bool ProblemTest::run() {
     Solution solution;
-    std::vector<std::string> argsLines = toLines(in_);
 
     try {
-        const auto ret = Binder::solve(solution, argsLines);
+        const auto ret = Binder::solve(solution, toLines(in_));
         print(out_, ret);
      } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
