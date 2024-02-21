@@ -2,9 +2,18 @@
 
 import os
 import subprocess
+import re
+
 from datetime import datetime
 
 import resultsdiffer
+
+def sort_key(file):
+    # Extract the number from the filename
+    match = re.search(r'\d+', file)
+    if match:
+        return int(match.group())
+    return file
 
 def printSuccess(testcase_name):
     print(f"\033[92m{testcase_name}: SUCCESS\033[0m")
@@ -22,7 +31,7 @@ def runTests(exec_filename, testcase_dir, output_file_dir, problem_name):
     if not os.path.isdir(cur_test_output_dir):
         os.mkdir(cur_test_output_dir)
 
-    for file in os.listdir(testcase_dir):
+    for file in sorted(os.listdir(testcase_dir), key=sort_key):
         if not file.endswith(".test"):
             continue
 
