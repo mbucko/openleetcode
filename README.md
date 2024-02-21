@@ -30,7 +30,7 @@ After the build succeeds the following directory structure will be generated
     - launguage
       - cpp
 
-Just like in LeetCode you have one file to modify and that is the **problem_builds/problems/TwoSum/cpp/solution.cpp**. To add new test cases you can create a file in **problem_builds/problems/TwoSum/testcases/** directory with the extension **.test** and your solution will be automatically tested against it.
+Just like for LeetCode you have one file where you solve the problem. For example, for the problem called TwoSum there is **problem_builds/problems/TwoSum/cpp/solution.cpp**. To add new test cases you can create a file in **problem_builds/problems/TwoSum/testcases/** directory with the extension **.test** and your solution will be automatically tested against it.
 
 The format of the .test files are as follows
 
@@ -48,10 +48,15 @@ Each line is either an integral type (1, 4.6 etc.), or an array of integral type
 [0, 0]
 ```
 
-Strings are not yet supported for C++. Once I have more time I'll add the support.
+For C++ the supported types are: integral types, strings, vector of integral types.
+
+### List of LeetCode Problems
+* TwoSum
+* LongestSubstringWithoutRepeatingCharacters
+The problem names are automatically extracted from the folder names inside **data/problems/**.
 
 ### Note
-Curently only C++ s supported but the framework is setup such that other languages can be added. Also, the question description and the solution is yet to be worked on.
+Curently only C++ is supported but the framework is setup such that other languages can be added. Also, the question description and the solution is yet to be worked on.
 
 ### Requirements
 This project requires the following to run:
