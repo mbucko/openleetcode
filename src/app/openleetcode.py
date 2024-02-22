@@ -1,4 +1,4 @@
-# main.py
+# openleetcode.py
 
 import argparse
 import logger
@@ -15,6 +15,7 @@ import functionextractor
 # add option to run a single testcase
 # List the problems in --help
 # clean up logs
+# test on cmd, PowerShell, Winddows Terminal
 
 TESTCAST_OUTPUT_DIR = "testcase_output"
 
@@ -32,7 +33,7 @@ def run(command):
 def main():
     parser = argparse.ArgumentParser(description="OpenLeetCode problem builder")
     parser.add_argument("--problem_builds_dir", "-d",
-                        default=".", 
+                        default="problem_builds", 
                         metavar='dir', 
                         type=str, 
                         help=("Path to a directory with the problems. "
@@ -59,30 +60,33 @@ def main():
     print("Running OpenLeetCode on problem: " + args.problem)
 
     if not os.path.isdir(args.problem_builds_dir):
-        print(logger.red(f"The directory '{args.problem_builds_dir}' "
+        print(logger.red(f"The build directory '{args.problem_builds_dir}' "
                          f"does not exist."))
         sys.exit(1)
 
     problem_dir = os.path.join(args.problem_builds_dir,
                             "problems", args.problem)
     if not os.path.isdir(problem_dir):
-        print(logger.red(f"The directory {problem_dir} does not exist. Check "
-                         f"the problem_builds_dir and problem arguments."))
+        print(logger.red(f"The problem directory {problem_dir} does not exist. "
+                         f"Check the problem_builds_dir and problem "
+                         f"arguments."))
         sys.exit(1)
 
     src_template_dir = os.path.join(args.problem_builds_dir, "languages",
                                     args.language)
     if not os.path.isdir(src_template_dir):
-        print(logger.red(f"The directory {src_template_dir} does not exist. "
-                          "This usually happen when the language is not " f"supported. Check the language argument."))
+        print(logger.red(f"The source template directory {src_template_dir} "
+                         f"does not exist. This usually happen when the "
+                         f"language is not supported. Check the language "
+                         f"argument."))
         sys.exit(1)
 
         
     src_dir = os.path.abspath(os.path.join(problem_dir, args.language))
     if not os.path.isdir(src_dir):
-        print(logger.red(f"The directory {src_dir} does not exist. This "
-                         f"usually happen when the language is not supported. "
-                         f"Check the language argument."))
+        print(logger.red(f"The source directory {src_dir} does not exist. This"
+                         f" usually happen when the language is not supported."
+                         f" Check the language argument."))
         sys.exit(1)
         
     build_dir = os.path.abspath(os.path.join(src_dir, "build"))
@@ -131,10 +135,10 @@ def main():
         print(logger.red("Install failed!"))
         sys.exit(1)
 
-    bin_dir = os.path.join("bin")
+    bin_dir = os.path.abspath(os.path.join(src_dir, "bin"))
     
     if not os.path.isdir(bin_dir):
-        print(logger.red(f"The directory {bin_dir} does not exist. Check the "
+        print(logger.red(f"The bin directory {bin_dir} does not exist. Check the "
                          f"problem_builds_dir and problem arguments."))
         sys.exit(1)
 
@@ -149,7 +153,7 @@ def main():
     testcases_dir = os.path.abspath("../testcases")
 
     if not os.path.isdir(testcases_dir):
-        print(logger.red(f"The directory {testcases_dir} does not exist. "
+        print(logger.red(f"The test directory {testcases_dir} does not exist. "
                          f"Check the problem_builds_dir and problem "
                          f"arguments."))
         sys.exit(1)
