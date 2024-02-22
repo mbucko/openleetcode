@@ -11,9 +11,7 @@ import testrunner
 import functionextractor
 
 # TODO:
-# Rename main.py to openleetcode.py
 # add option to run a single testcase
-# List the problems in --help
 # clean up logs
 # test on cmd, PowerShell, Winddows Terminal
 
@@ -52,10 +50,21 @@ def main():
                         action="store_true",
                         default=False,
                         help="Print verbose output")
+    parser.add_argument("--list-problems",
+                        action="store_true",
+                        default=False,
+                        help="List problems")
     
     args = parser.parse_args()
 
     logger.set_verbose(args.verbose)
+
+    if (args.list_problems):
+        print("List of problems:")
+        problems_dir = os.path.join(args.problem_builds_dir, "problems")
+        for problem in os.listdir(problems_dir):
+            print(problem)
+        sys.exit(0)
 
     print("Running OpenLeetCode on problem: " + args.problem)
 

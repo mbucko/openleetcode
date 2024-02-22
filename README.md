@@ -76,6 +76,7 @@ options:
   --problem problem_name, -p problem_name
                         Name of the problem to build and test. Example: TwoSum
   --verbose, -v         Print verbose output
+  --list-problems       List problems
 ```
 
 ## Note
