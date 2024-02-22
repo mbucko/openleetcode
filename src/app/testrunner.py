@@ -9,6 +9,9 @@ from datetime import datetime
 import logger
 import resultsdiffer
 
+# In the future this might depend on the language (e.g. for pyhon, use 15s)
+PROBLEM_LTE_S = 3
+
 def sort_key(file):
     # Extract the number from the filename
     match = re.search(r'\d+', file)
@@ -60,13 +63,20 @@ def runTest(exec_filename, testcase_filename, output_filename):
         return 1, f"The file {testcase_filename} does not exist."
     
     try:
-        result = subprocess.run([os.path.basename(exec_filename),
-                                 os.path.abspath(testcase_filename),
-                                 os.path.abspath(output_filename)],
-                                shell=True,
+        command = (
+            f"{os.path.abspath(exec_filename)} "
+            f"{os.path.abspath(testcase_filename)} "
+            f"{os.path.abspath(output_filename)}"
+        )
+        logger.log(f"Running command: {command}")
+        result = subprocess.run(command,
+                                shell=False,
                                 cwd=os.path.dirname(exec_filename),
+                                timeout=PROBLEM_LTE_S,
                                 stderr=subprocess.PIPE)
+    except subprocess.TimeoutExpired:
+        return 1, f"Time Limit Exceeded"
     except Exception as e:
-        return 1, f"Error running the test {e}"
+        return 1, f"Error running the test, command={command}, error={e}"
     
     return result.returncode, result.stderr.decode()
