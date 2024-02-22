@@ -13,8 +13,8 @@ import functionextractor
 # TODO:
 # Rename main.py to openleetcode.py
 # add option to run a single testcase
-# print out the stdout and stderr of the failed testcase only
 # List the problems in --help
+# clean up logs
 
 TESTCAST_OUTPUT_DIR = "testcase_output"
 
