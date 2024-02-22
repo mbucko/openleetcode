@@ -1,5 +1,3 @@
-
-
 ### Approach
 
 Iterate through the array once. For each element, check if the target minus the current element exists in the hash table. If it does, we have found a valid pair of numbers. If not, we add the current element to the hash table.
