@@ -18,7 +18,6 @@ def sort_key(file):
 
 def printSuccess(testcase_name):
     print(logger.green(testcase_name + ": SUCCESS"))
-    print(f"\033[92m{testcase_name}: SUCCESS\033[0m")
 
 def printFailure(testcase_name, message):
     print(logger.red(f"{testcase_name}: FAILURE - {message}"))
