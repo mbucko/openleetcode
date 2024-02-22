@@ -29,31 +29,39 @@ def run(command):
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description="OpenLeetCode problem builder")
-    parser.add_argument("--problem_builds_dir", "-d",
-                        default="problem_builds", 
-                        metavar='dir', 
-                        type=str, 
-                        help=("Path to a directory with the problems. "
-                            "Usually ./problem_builds/ directory"))
-    parser.add_argument("--language", "-l",
-                        choices=['cpp'],
-                        default="cpp",
-                        help="The programming language")
-    parser.add_argument("--problem", "-p",
-                        metavar='problem_name',
-                        default="TwoSum",
-                        type=str,
-                        help="Name of the problem to build and test. "
-                        "Example: TwoSum, LongestSubstringWithoutRepeatingCharacters")
+    parser = argparse.ArgumentParser(
+        description="OpenLeetCode problem builder. This script builds and "
+                    "tests a leetcode like problems locally. Currently, it "
+                    "only supports C++ language but it can be extended to "
+                    "support other languages.")
+    parser.add_argument(
+        "--language", "-l",
+        choices=['cpp'],
+        default="cpp",
+        help="The programming language.")
+    parser.add_argument(
+        "--list-problems",
+        action="store_true",
+        default=False,
+        help="List problems.")
+    parser.add_argument(
+        "--problem", "-p",
+        metavar='problem_name',
+        default="TwoSum",
+        type=str,
+        help="Name of the problem to build and test. Default: TwoSum. Use "
+        "--list-problems to list all problems.")
+    parser.add_argument(
+        "--problem_builds_dir", "-d",
+        default="problem_builds", 
+        metavar='dir', 
+        type=str, 
+        help=("Path to a directory with the problems. Usually "
+              "./problem_builds/ directory. Default: problem_builds."))
     parser.add_argument("--verbose", "-v",
                         action="store_true",
                         default=False,
                         help="Print verbose output")
-    parser.add_argument("--list-problems",
-                        action="store_true",
-                        default=False,
-                        help="List problems")
     
     args = parser.parse_args()
 

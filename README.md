@@ -64,19 +64,24 @@ The problem names are automatically extracted from the folder names inside **dat
 
 ## Usage
 ```text
-$ python main.py --help
-OpenLeetCode problem builder
+$ python openleetcode.py --help
+usage: openleetcode.py [-h] [--language {cpp}] [--list-problems] [--problem problem_name]
+                       [--problem_builds_dir dir] [--verbose]
+
+OpenLeetCode problem builder. This script builds and tests a leetcode like problems locally. Currently, it only supports C++ language but it can be extended to support other languages.
 
 options:
   -h, --help            show this help message and exit
-  --problem_builds_dir dir, -d dir
-                        Path to a directory with the problems. Usually ./problem_builds/ directory
   --language {cpp}, -l {cpp}
-                        The programming language
+                        The programming language.
+  --list-problems       List problems.
   --problem problem_name, -p problem_name
-                        Name of the problem to build and test. Example: TwoSum
+                        Name of the problem to build and test. Default: TwoSum. Use --list-problems to
+                        list all problems.
+  --problem_builds_dir dir, -d dir
+                        Path to a directory with the problems. Usually ./problem_builds/ directory.
+                        Default: problem_builds.
   --verbose, -v         Print verbose output
-  --list-problems       List problems
 ```
 
 ## Note
