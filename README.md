@@ -1,19 +1,21 @@
 OpenLeetCode - An open source version of LeetCode
 --------------------------------------------------------
 
+## Windows Terminal
+
 ### Build
-```bash 
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
+```cmd
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DPROBLEM_BUILDS_NAME=problem_builds
 cmake --build build
 cmake --install build --config Debug
 ```
 
 ### Run
-```bash
-python.exe problem_builds\main.py --problem_builds_dir ./problem_builds --language cpp --problem TwoSum
+```cmd
+./problem_builds/openleetcode --problem_builds_dir ./problem_builds --language cpp --problem TwoSum
 ```
 
-### How To Use
+## How To Use
 The above example runs **TwoSum** problem using **C++**.
 After the build succeeds the following directory structure will be generated in the folder specified by ``--problem_builds_dir`` flag. In this example it's a folder called ``problem_builds`` as follows:.
 
@@ -53,14 +55,14 @@ Each line is either an integral type (1, 4.6 etc.), or an array of integral type
 
 For C++ the supported types are: integral types, strings, vector of integral types.
 
-### List of LeetCode Problems
+## List of LeetCode Problems
 * TwoSum
 * LongestSubstringWithoutRepeatingCharacters
 * NumberOfIslands
 
 The problem names are automatically extracted from the folder names inside **data/problems/**.
 
-### Usage
+## Usage
 ```text
 $ python main.py --help
 OpenLeetCode problem builder
@@ -76,14 +78,14 @@ options:
   --verbose, -v         Print verbose output
 ```
 
-### Note
+## Note
 Curently only C++ is supported but the framework is setup such that other languages can be added. Also, the question description and the solution is yet to be worked on.
 
-### Requirements
+## Requirements
 This project requires the following to run:
 
 - Python
 - CMake 3.12
 
-### Contributing
+## Contributing
 Feel free to contribute with code, test cases, or even code reviews.
