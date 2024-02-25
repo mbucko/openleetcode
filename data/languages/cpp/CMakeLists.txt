@@ -4,6 +4,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True) 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # Add GCC-specific flags here.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # Add Clang-specificflags here.
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Add MSVC-specific flags here.
+endif()
+
 project(solution
     DESCRIPTION "Open Source version of LeetCode"
     LANGUAGES CXX

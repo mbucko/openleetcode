@@ -1,7 +1,9 @@
 #ifndef COMPARATOR_H
 #define COMPARATOR_H
 
+#include <algorithm>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 struct Comparator {
