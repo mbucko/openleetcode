@@ -2,11 +2,10 @@ set(PYTHON_SCRIPTS
     functionextractor.py
     logger.py
     openleetcode.py
-    resultsdiffer.py
     testrunner.py
 )
 
-set(WINDOWS_SCRIPTS 
+set(WINDOWS_SCRIPTS
     openleetcode.bat
 )
 

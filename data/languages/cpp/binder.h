@@ -15,8 +15,15 @@
 using SolutionFun = decltype(fun);
 
 class Binder {
+  public:
     using return_type = typename function_traits<SolutionFun>::return_type;
-    using arg_tuple_type = typename function_traits<SolutionFun>::arg_tuple_type;
+    using arg_tuple_type =
+        typename function_traits<SolutionFun>::arg_tuple_type;
+    
+    constexpr static size_t func_arg_size_v =
+        std::tuple_size_v<arg_tuple_type>;
+
+  private:
 
     template <std::size_t... Is>
     static return_type callFunction(Solution& solution,

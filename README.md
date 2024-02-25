@@ -92,6 +92,7 @@ This project requires the following to run:
 
 - Python
 - CMake 3.12
+- Git
 
 ## Contributing
 Feel free to contribute with code, test cases, or even code reviews.

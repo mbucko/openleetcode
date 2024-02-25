@@ -1,13 +1,13 @@
 # testrunner.py
 
+import json
 import os
-import subprocess
 import re
+import subprocess
 
 from datetime import datetime
 
 import logger
-import resultsdiffer
 
 # In the future this might depend on the language (e.g. for pyhon, use 15s)
 PROBLEM_LTE_S = 3
@@ -28,62 +28,57 @@ def printFailure(testcase_name, message):
 def getTestcaseName(file):
     return file[:-5]
 
-def runTests(exec_filename, testcase_dir, output_file_dir, problem_name):
-    dated_output_dir = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    cur_test_output_dir = os.path.join(output_file_dir, dated_output_dir)
+def runTests(exec_filename,
+             testcase_dir,
+             output_dir_name,
+             problem_name,
+             testcase_name):
+    date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    test_restults_filename = os.path.join(output_dir_name,
+                                          f"{problem_name}-{date}.results")
     
-    if not os.path.isdir(cur_test_output_dir):
-        os.mkdir(cur_test_output_dir)
-
-    for file in sorted(os.listdir(testcase_dir), key=sort_key):
-        if not file.endswith(".test"):
-            continue
-
-        test_case_name = getTestcaseName(file)
-        output_filename = os.path.join(cur_test_output_dir,
-                                    f"{test_case_name}.results")
+    if not os.path.isdir(output_dir_name):
+        os.mkdir(output_dir_name)
     
-        input_filename = os.path.abspath(os.path.join(testcase_dir, file))
-        ret, message = runTest(exec_filename, input_filename, output_filename)
-        if ret != 0:
-            printFailure(test_case_name, message)
-            return
-        
-        ret, message = resultsdiffer.compare(input_filename, output_filename)
-        if ret != 0:
-            printFailure(test_case_name, message)
-            return
-
-        printSuccess(test_case_name)
-
-def runTest(exec_filename, testcase_filename, output_filename):
     if not os.path.isfile(exec_filename):
         return 1, f"The file {exec_filename} does not exist."
-    if not os.path.isfile(testcase_filename):
-        return 1, f"The file {testcase_filename} does not exist."
+    if True and not os.path.isdir(testcase_dir):
+        return 1,  f"The testcase directory {testcase_dir} does not exist."
     
     try:
         command = (
-            f"{os.path.abspath(exec_filename)} "
-            f"{os.path.abspath(testcase_filename)} "
-            f"{os.path.abspath(output_filename)}"
+            f"{exec_filename} "
+            f"{testcase_dir} "
+            f"{test_restults_filename} "
+            f"{testcase_name}"
         )
         logger.log(f"Running command: {command}")
-        if os.name == 'posix':
-            result = subprocess.run(command,
-                                shell=True,
-                                cwd=os.path.dirname(exec_filename),
-                                timeout=PROBLEM_LTE_S,
-                                stderr=subprocess.PIPE)
-        else: 
-            result = subprocess.run(command,
-                                shell=False,
-                                cwd=os.path.dirname(exec_filename),
-                                timeout=PROBLEM_LTE_S,
-                                stderr=subprocess.PIPE)
+        subprocess_obj = subprocess.run(command,
+                                        shell=True,
+                                        cwd=os.path.dirname(exec_filename),
+                                        timeout=PROBLEM_LTE_S,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+
     except subprocess.TimeoutExpired:
         return 1, f"Time Limit Exceeded"
     except Exception as e:
-        return 1, f"Error running the test, command={command}, error={e}"
+        return 1, f"Error running the test, error={e}"
     
-    return result.returncode, result.stderr.decode()
+    if not os.path.isfile(test_restults_filename):
+        return 1, f"The file {test_restults_filename} does not exist."
+    
+    # read test_restults_filename into a json object
+    with open(test_restults_filename, 'r') as f:
+        results = json.load(f)
+        results["stderr"] = subprocess_obj.stderr.decode('utf-8')
+        if testcase_name != "All":
+            results["stdout"] = subprocess_obj.stdout.decode('utf-8')
+    
+    with open(test_restults_filename, 'w') as f:
+        json.dump(results, f, indent=4)
+
+    print(f"Results written to {test_restults_filename}")
+    logger.logResults(results)
+    
+    return subprocess_obj.returncode, subprocess_obj.stderr.decode('utf-8')
