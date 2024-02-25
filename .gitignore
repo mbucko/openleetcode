@@ -46,3 +46,6 @@ build/
 *.sln
 problem_builds/
 .vscode/
+
+# Imported modules
+nlohmann/

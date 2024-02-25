@@ -15,3 +15,8 @@ def set_verbose(verbose: bool):
 def log(message: str):
     if _verbose:
         print(message)
+
+def logResults(results):
+    #TODO: Print indivitual test status for a failed run?
+    print("Status: " + str(results["status"]) + "\n" +
+          "Duration: " + str(results["duration_ms"]) + "ms")

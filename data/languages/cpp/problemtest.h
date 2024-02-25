@@ -1,17 +1,25 @@
 #ifndef PROBLEMTEST_H
 #define PROBLEMTEST_H
 
-#include <fstream>
+#include <string>
+
+#include <nlohmann/json.hpp>
 
 class ProblemTest {
   public:
-    explicit ProblemTest(std::ifstream in, std::ofstream out);
+    explicit ProblemTest(const std::string& test_dir_name,
+                         const std::string& results_file_name,
+                         const std::string& testcase_file_name);
 
-  bool run();
+    bool run() const;
 
   private:
-    std::ifstream in_;
-    std::ofstream out_;
+    const std::string test_dir_name_;
+    const std::string results_file_name_;
+    const std::string testcase_file_name_;
+
+    bool runTest(const std::string& testcase_file_name,
+                                  nlohmann::json& test) const;
     
     ProblemTest(const ProblemTest&) = delete;
     ProblemTest& operator=(const ProblemTest&) = delete;
