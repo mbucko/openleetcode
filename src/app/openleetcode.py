@@ -18,7 +18,13 @@ import functionextractor
 TESTCAST_OUTPUT_DIR = "testcase_output"
 
 def run(command):
-    result = subprocess.run(command.split(),
+    if os.name == 'posix':
+        result = subprocess.run(command,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            shell=True)
+    else:
+        result = subprocess.run(command.split(),
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT,
                             shell=True)
@@ -159,7 +165,11 @@ def main():
                          f"problem_builds_dir and problem arguments."))
         sys.exit(1)
 
-    exe_file = os.path.abspath(os.path.join(bin_dir,
+    if os.name == 'posix':
+        exe_file = os.path.abspath(os.path.join(bin_dir,
+                                            f"solution_{args.language}"))
+    else:
+        exe_file = os.path.abspath(os.path.join(bin_dir,
                                             f"solution_{args.language}.exe"))
     
     if not os.path.isfile(exe_file):

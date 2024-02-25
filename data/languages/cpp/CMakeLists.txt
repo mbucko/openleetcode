@@ -28,9 +28,9 @@ target_sources(solution_cpp PRIVATE
     problemtest.cpp
 )
 
-set(CMAKE_INSTALL_DiR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 install(TARGETS solution_cpp
     CONFIGURATIONS Release
-    RUNTIME DESTINATION ${CMAKE_INSTALL_DiR}
-)
+    RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}
+)   
