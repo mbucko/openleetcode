@@ -69,7 +69,14 @@ def runTest(exec_filename, testcase_filename, output_filename):
             f"{os.path.abspath(output_filename)}"
         )
         logger.log(f"Running command: {command}")
-        result = subprocess.run(command,
+        if os.name == 'posix':
+            result = subprocess.run(command,
+                                shell=True,
+                                cwd=os.path.dirname(exec_filename),
+                                timeout=PROBLEM_LTE_S,
+                                stderr=subprocess.PIPE)
+        else: 
+            result = subprocess.run(command,
                                 shell=False,
                                 cwd=os.path.dirname(exec_filename),
                                 timeout=PROBLEM_LTE_S,
