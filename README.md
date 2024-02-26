@@ -2,10 +2,7 @@ OpenLeetCode - An open source version of LeetCode
 --------------------------------------------------------
 Welcome to the OpenLeetCode Project!
 
-The motivation behind this project is to be able to leetcode on the plane without having internet connection. It is by no means meant to replace or copy leetcode.com.
-
-
-The motivation behind this project is to be able to practice LeetCode problems on a plane without requiring an internet connection (untill Starlink ramps up). It is by no means intended to replace or replicate leetcode.com.
+The motivation behind this project is to be able to practice LeetCode problems on a plane without requiring an internet connection (until Starlink ramps up). It is by no means intended to replace or replicate leetcode.com.
 
 ## Table of Contents
 
