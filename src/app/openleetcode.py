@@ -21,15 +21,15 @@ def naturalSort(s):
             for text in re.split('([0-9]+)', s)]
 
 def run(command):
+    logger.log("Running command: " + command)
     result = subprocess.run(command,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT,
                         shell=True)
+    logger.log(result.stdout.decode('utf-8'))
     if result.returncode != 0:
         logger.log(f"Error running the command: {command}")
-        print(f"Error: {result.stdout.decode('utf-8')}")
-        return False
-    return True
+    return result.returncode
 
 def getExeExtension():
     if os.name == 'posix':
@@ -176,11 +176,7 @@ def main():
         if not os.path.isfile(dst_file):
             logger.log(f"Copying {src_file} to {dst_file}")
             shutil.copy(src_file, dst_file)
-            
-    # Run the cmake in the src_dir
-    os.chdir(src_dir)
-    # TODO remove this
-
+    
     solution_file_name = os.path.join(src_dir, "solution.cpp")
     solution_function_file_name = os.path.join(src_dir, "solutionfunction.h")
     ret = functionextractor.get_function(solution_file_name,
@@ -209,16 +205,16 @@ def main():
                          f"{solution_file_name}."))
         sys.exit(1)
 
-    if not run(f"cmake -B {build_dir}"):
+    if run(f"cmake -B {build_dir} -S {src_dir}") != 0:
         print(logger.red(f"CMake failed!"))
         sys.exit(1)
 
-    if not run(f"cmake --build {build_dir} --config Release"):
-        print(logger.red("Build failed!"))
+    if run(f"cmake --build {build_dir} --config Release") != 0:
+        print(logger.red("Cmake build failed!"))
         sys.exit(1)
 
-    if not run("cmake --install build"):
-        print(logger.red("Install failed!"))
+    if run(f"cmake --install {build_dir}") != 0:
+        print(logger.red("Cmake install failed!"))
         sys.exit(1)
 
     bin_dir = os.path.abspath(os.path.join(src_dir, "bin"))
