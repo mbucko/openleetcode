@@ -1,5 +1,25 @@
 OpenLeetCode - An open source version of LeetCode
 --------------------------------------------------------
+Welcome to the OpenLeetCode Project!
+
+The motivation behind this project is to be able to leetcode on the plane without having internet connection. It is by no means meant to replace or copy leetcode.com.
+
+
+The motivation behind this project is to be able to practice LeetCode problems on a plane without requiring an internet connection (untill Starlink ramps up). It is by no means intended to replace or replicate leetcode.com.
+
+## Table of Contents
+
+1. [Windows Terminal](#windows-terminal)
+    1. [Build](#build)
+    2. [Run](#run)
+        1. [Windows Terminal](#windows-terminal-1)
+        2. [Unix](#unix)
+2. [How To Use](#how-to-use)
+3. [List of LeetCode Problems](#list-of-leetcode-problems)
+4. [Usage](#usage)
+5. [Note](#note)
+6. [Requirements](#requirements)
+7. [Contributing](#contributing)
 
 ## Windows Terminal
 
@@ -9,7 +29,6 @@ cmake -B build -DCMAKE_BUILD_TYPE=Debug -DPROBLEM_BUILDS_NAME=problem_builds
 cmake --build build
 cmake --install build --config Debug
 ```
-
 ### Run
 #### Windows Terminal
 ```cmd
@@ -101,3 +120,5 @@ This project requires the following to run:
 
 ## Contributing
 Feel free to contribute with code, test cases, or even code reviews.
+
+For a more in-depth guide on how to contribute and information about the inner workings of OpenLeetCode, please refer to the [Docs](docs/index.md).
