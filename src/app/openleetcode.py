@@ -33,8 +33,10 @@ def run(command):
 def getExeExtension():
     if os.name == 'posix':
         return ""
-    else:
+    elif os.name == 'nt':
         return ".exe"
+    else:
+        return ""
 
 def main():
     parser = argparse.ArgumentParser(
