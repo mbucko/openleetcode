@@ -119,3 +119,4 @@ This project requires the following to run:
 Feel free to contribute with code, test cases, or even code reviews.
 
 For a more in-depth guide on how to contribute and information about the inner workings of OpenLeetCode, please refer to the [Docs](docs/index.md).
+You can also join our [Discord chat](https://discord.gg/BzkqubYUm8) if you have any questions about the usage or development.
