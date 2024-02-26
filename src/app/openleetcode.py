@@ -4,6 +4,7 @@ import argparse
 import json
 import logger
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -12,12 +13,12 @@ import testrunner
 import functionextractor
 import resultsvalidator
 
-# TODO:
-# test on cmd, PowerShell, Winddows Terminal, iOS Terminal
-# Add --list-testcases
-
 TESTCAST_OUTPUT_DIR = "testcase_output"
 VALIDATION_SCHEMA_FILE_NAME = "results_validation_schema.json"
+
+def naturalSort(s):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split('([0-9]+)', s)]
 
 def run(command):
     result = subprocess.run(command,
@@ -55,12 +56,18 @@ def main():
         default=False,
         help="List problems.")
     parser.add_argument(
+        "--list-testcases",
+        action="store_true",
+        default=False,
+        help="List testcases for a problem specified with '--problem' option."
+    )
+    parser.add_argument(
         "--problem", "-p",
         metavar='problem_name',
         default="TwoSum",
         type=str,
         help="Name of the problem to build and test. Default: TwoSum. Use "
-        "--list-problems to list all problems. '")
+        "--list-problems to list all problems.")
     parser.add_argument(
         "--problem_builds_dir", "-d",
         default="problem_builds", 
@@ -91,7 +98,6 @@ def main():
                          f"does not exist."))
         sys.exit(1)
 
-    
     problems_dir = os.path.abspath(os.path.join(problem_builds_dir, "problems"))
 
     if not os.path.isdir(problems_dir):
@@ -103,10 +109,6 @@ def main():
         for problem in os.listdir(problems_dir):
             print(problem)
         sys.exit(1)
-
-
-    print("Running OpenLeetCode on problem " + args.problem +
-          " for testcase " + args.testcase + " in language " + args.language)
 
     if not os.path.isdir(args.problem_builds_dir):
         print(logger.red(f"The build directory '{args.problem_builds_dir}' "
@@ -130,7 +132,6 @@ def main():
                          f"argument."))
         sys.exit(1)
 
-        
     src_dir = os.path.abspath(os.path.join(problem_dir, args.language))
     if not os.path.isdir(src_dir):
         print(logger.red(f"The source directory {src_dir} does not exist. This"
@@ -141,6 +142,12 @@ def main():
     build_dir = os.path.abspath(os.path.join(src_dir, "build"))
     
     testcases_dir = os.path.abspath(os.path.join(src_dir, "../testcases"))
+
+    if (args.list_testcases):
+        print("List of testcases:")
+        for testcase in sorted(os.listdir(testcases_dir), key=naturalSort):
+            print(testcase.replace(".test", ""))
+        sys.exit(0)
     
     if (args.testcase != "All"):
         testcase_file = os.path.join(testcases_dir, args.testcase + ".test")
@@ -149,6 +156,8 @@ def main():
                              "exist."))
             sys.exit(1)
 
+    print("Running OpenLeetCode on problem " + args.problem +
+          " for testcase " + args.testcase + " in language " + args.language)
     logger.log(f"Building the problem {args.problem} "
                f"in {args.language} language.")
     logger.log(f"Problem directory: {problem_dir}")
