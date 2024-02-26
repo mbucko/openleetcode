@@ -93,9 +93,11 @@ std::vector<std::string> toLines(const std::string& testcase_file) {
 
 ProblemTest::ProblemTest(const std::string& test_dir_name,
                          const std::string& results_file_name,
+                         const std::string& testcase_name,
                          const std::string& testcase_file_name)
     : test_dir_name_(test_dir_name),
       results_file_name_(results_file_name),
+      testcase_name_(testcase_name),
       testcase_file_name_(testcase_file_name) {
 }
 
@@ -114,7 +116,7 @@ bool ProblemTest::runTest(
     Binder::return_type ret{};
     Binder::return_type expected{};
 
-    test["testcase_name"] = std::filesystem::path(testcase_file_name).stem();
+    test["testcase_name"] = testcase_name_;
 
     try {
         auto lines = toLines(testcase_file_name);
@@ -180,6 +182,7 @@ bool ProblemTest::run() const {
 
     nlohmann::json jsonObj;
     jsonObj["duration_ms"] = getDurationSince(start);
+    jsonObj["testcase_name"] = testcase_name_;
 
     if (success) {
         jsonObj["status"] = "Ok";

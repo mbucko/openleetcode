@@ -1,6 +1,7 @@
 # openleetcode.py
 
 import argparse
+import json
 import logger
 import os
 import shutil
@@ -9,12 +10,14 @@ import sys
 
 import testrunner
 import functionextractor
+import resultsvalidator
 
 # TODO:
 # test on cmd, PowerShell, Winddows Terminal, iOS Terminal
 # Add --list-testcases
 
 TESTCAST_OUTPUT_DIR = "testcase_output"
+VALIDATION_SCHEMA_FILE_NAME = "results_validation_schema.json"
 
 def run(command):
     result = subprocess.run(command,
@@ -173,6 +176,22 @@ def main():
                                          solution_function_file_name)
     logger.log(f"Extracted function name: {ret}")
     logger.log(f"Writing the function name to {solution_function_file_name}")
+
+    validation_schema_file = os.path.abspath(
+        os.path.join(problem_builds_dir, VALIDATION_SCHEMA_FILE_NAME))
+    if not os.path.isfile(validation_schema_file):
+        print(logger.red(f"The validation schema file {validation_schema_file} "
+                         f"does not exist."))
+        sys.exit(1)
+    
+    with open(validation_schema_file, 'r') as f:
+        try:
+            schema = json.load(f)
+        except Exception as e:
+            print(logger.red(f"Error reading the validation schema file. "
+                             f"error={e}"))
+            sys.exit(1)
+        resultsvalidator.set_schema(schema)
 
     if not ret:
         print(logger.red(f"Could not extract the function name from "

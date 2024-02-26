@@ -1,0 +1,98 @@
+{
+    "definitions": {
+        "duration_ms_schema": {
+            "type": "integer"
+        },
+        "status_schema": {
+            "type": "string"
+        },
+        "stderr_schema": {
+            "type": "string"
+        },
+        "stdout_schema": {
+            "type": "string"
+        },
+        "testcase_name_schema": {
+            "type": "string"
+        },
+        "test_schema": {
+            "type": "object",
+                "properties": {
+                    "actual": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "integer"},
+                            {"type": "array"}
+                        ]
+                    },
+                    "expected": {
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "integer"},
+                            {"type": "array"}
+                        ]
+                    },
+                    "reason": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "testcase_file": {
+                        "type": "string"
+                    },
+                    "testcase_name": {
+                        "type": "string"
+                    }
+                },
+                "required": ["status", "testcase_name"],
+                "if": {
+                    "properties": {
+                        "status": { "const": "Failed" }
+                    }
+                },
+                "then": {
+                    "required": ["actual", "expected", "reason", "testcase_file"]
+                }
+            },
+            "tests_schema": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "$ref": "#/definitions/test_schema"
+                }
+            }
+    },
+    "type": "object",
+    "properties": {
+        "duration_ms": {
+            "$ref": "#/definitions/duration_ms_schema"
+        },
+        "status": {
+            "$ref": "#/definitions/status_schema"
+        },
+        "tests": {
+            "$ref": "#/definitions/tests_schema"
+        },
+        "stderr": {
+            "$ref": "#/definitions/stderr_schema"
+        },
+        "stdout": {
+            "$ref": "#/definitions/stdout_schema"
+        },
+        "testcase_name": {
+            "$ref": "#/definitions/testcase_name_schema"
+        }
+    },
+    "required": ["duration_ms", "status", "tests", "stderr"],
+    "if": {
+        "not": {
+            "properties": {
+            "testcase_name": { "pattern": "^All$", "flags": "i" }
+            }
+        }
+    },
+    "then": {
+        "required": ["stdout"]
+    }
+}

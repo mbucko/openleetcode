@@ -2,7 +2,12 @@ set(PYTHON_SCRIPTS
     functionextractor.py
     logger.py
     openleetcode.py
+    resultsvalidator.py
     testrunner.py
+)
+
+set (DATA
+    results_validation_schema.json
 )
 
 set(WINDOWS_SCRIPTS
@@ -36,4 +41,8 @@ endif()
 
 foreach(PYTHON_SCRIPT IN LISTS PYTHON_SCRIPTS)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PYTHON_SCRIPT} ${PROJECT_BUILDS_DIR}/${PYTHON_SCRIPT} COPYONLY)
+endforeach()
+
+foreach(FILE IN LISTS DATA)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${PROJECT_BUILDS_DIR}/${FILE} COPYONLY)
 endforeach()

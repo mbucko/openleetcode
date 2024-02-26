@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
 
     ProblemTest problemTest(test_dir_name,
                             results_file_name,
+                            testcase_name,
                             testcase_file_name);
 
     const bool success = problemTest.run();

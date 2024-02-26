@@ -8,6 +8,7 @@ import subprocess
 from datetime import datetime
 
 import logger
+import resultsvalidator
 
 # In the future this might depend on the language (e.g. for pyhon, use 15s)
 PROBLEM_LTE_S = 3
@@ -79,6 +80,11 @@ def runTests(exec_filename,
         json.dump(results, f, indent=4)
 
     print(f"Results written to {test_restults_filename}")
+    
+    ret, message = resultsvalidator.validateResults(results)
+    if ret != 0:
+        return ret, message
+    
     logger.logResults(results)
     
     return subprocess_obj.returncode, subprocess_obj.stderr.decode('utf-8')
