@@ -11,8 +11,13 @@ cmake --install build --config Debug
 ```
 
 ### Run
+#### Windows Terminal
 ```cmd
 ./problem_builds/openleetcode --problem_builds_dir ./problem_builds --language cpp --problem TwoSum
+```
+#### Unix
+```bash
+./problem_builds/openleetcode.sh --problem_builds_dir ./problem_builds --language cpp --problem TwoSum
 ```
 
 ## How To Use

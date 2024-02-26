@@ -21,7 +21,7 @@ endif()
 project(solution
     DESCRIPTION "Open Source version of LeetCode"
     LANGUAGES CXX
-) 
+)
 
 include(FetchContent)
 
