@@ -1,0 +1,11 @@
+{
+  "name": "openleetcodeui",
+  "version": "0.1.0",
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "^29.0.1"
+  },
+  "scripts": {
+    "start": "electron ."
+  }
+}
