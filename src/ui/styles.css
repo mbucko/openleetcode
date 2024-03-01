@@ -1,0 +1,164 @@
+:root {
+    --grey-very-light: #606060;
+    --grey-light: #434343;
+    --grey-medium: #333333;
+    --grey-dark: #262626;
+    --grey-very-dark: #1e1e1e;
+    --white: #ffffff;
+    --grey-font-color: #B0B0B0;
+    
+    --panel-background: var(--grey-very-dark);
+    --border_color: var(--grey-very-light);
+    --content-background: var(--grey-dark);
+    --hover_color: var(--grey-light);
+    --panel-border: var(--grey-very-light);
+    --splitter: var(--grey-light);
+    --tab-background: var(--grey-medium);
+    --content-font-color: var(--white);
+    --tab-font-color: var(--grey-font-color);
+
+    --content-font-family: "Segoe UI";
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--panel-background);
+    overflow: hidden;
+}
+
+.label {
+    color: var(--content-font-color);
+    background-color: var(--grey-very-dark);
+}
+
+select, button {
+    background-color: var(--grey-medium);
+    color: var(--white);
+    border: none;
+    padding: 5px 10px;
+}
+
+button {
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+button:hover {
+    background-color: var(--hover_color);
+}
+
+select {
+    border-radius: 4px;
+}
+
+select:hover {
+    background-color: var(--hover_color);
+}
+
+.control-panel {
+    margin: 4px;
+}
+
+.root-panel {
+    margin: 1px 1 1px 1px;
+    border: 2px solid var(--grey-very-dark);
+    overflow: hidden;
+}
+
+.panel {
+    padding: 4;
+    box-sizing: border-box;
+    background-color: var(--panel-background);
+}
+
+.markdown-content {
+    color: var(--panel_foreground);
+}
+.tab-panel {
+    display: flex;
+    background-color: var(--tab-background);
+    padding: 5px;
+    color: var(--tab-font-color);
+}
+
+.tab {
+    padding: 0 10px 0 10px;
+    cursor: pointer;
+    border-radius: 1px;
+    color: var(--tab-font-color);
+}
+
+.tab:hover {
+  background-color: var(--hover_color);
+}
+
+.content {
+    background-color: var(--content-background);
+    color: var(--content-font-color);
+    font-family: var(--content-font-family);
+}
+
+.tab-content-left {
+    height: 100vh;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab.selected {
+    background-color: var(--panel_background);
+}
+
+.tab-separator {
+    background-color: var(--border_color);
+    width: 1px;
+    margin: 3px 0;
+}
+
+.panel {
+    display: flex;
+    background-color: var(--grey-dark);
+}
+
+.panel-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.panel-col {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.panel-item {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+#top-right-panel {
+    overflow: hidden;
+}
+
+.panel-item-fixed-height {
+    flex: none;
+}
+
+code {
+    background-color: #ffffff12;
+    border-color: #f7faff1f;
+    border-radius: 5px;
+    border-width: 1px;
+    color: #eff1f6bf;
+    font-family: Menlo,sans-serif;
+    font-size: .75rem;
+    line-height: 1rem;
+    padding: 0.125rem;
+    white-space: pre-wrap;
+}
