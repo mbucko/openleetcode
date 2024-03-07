@@ -2,11 +2,11 @@ const { app, BrowserWindow, globalShortcut } = require('electron');
 const path = require('path');
 const DirectoryManager = require('./directory-manager.js');
 
-saveProblemBuildsDirToFile();
+saveFilePaths();
 
 let win;
 
-function saveProblemBuildsDirToFile() {
+function saveFilePaths() {
     var problemBuildsDir = "./problem_builds";
     var problemBuildsArg = process.argv.find(arg => arg.startsWith('--problem_builds_dir='));
     
@@ -19,7 +19,7 @@ function saveProblemBuildsDirToFile() {
     problemBuildsDir = path.resolve(problemBuildsDir);
     
     const fs = require('fs');
-    fs.writeFileSync(DirectoryManager.getProblemBuildsDirTmpFile(),
+    fs.writeFileSync(DirectoryManager.getPathsFile(), 
                      problemBuildsDir, 'utf8');
 }
 

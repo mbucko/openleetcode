@@ -5,11 +5,13 @@ global.dirDict = null;
 global.languages = null;
 global.problemNames = null;
 
+global.problemBuildsDir = null;
+
 LANGUAGES_DIR_NAME = "languages";
 PROBLEMS_DIR_NAME = "problems";
 
-function getProblemBuildsDirTmpFile() {
-    return path.resolve("ProblemBuildsDir.tmp")
+function getPathsFile() {
+    return path.resolve("filePaths.tmp")
 }
 
 function readMdFile(filePath) {
@@ -45,13 +47,12 @@ function calculateDirectories() {
         return;
     }
 
-    const problemBuildsDir =
-     fs.readFileSync(getProblemBuildsDirTmpFile(), 'utf8');
-
-    if (!problemBuildsDir) {
-        throw new Error("Problem builds directory does not exist: " +
-                        "${problemBuildsDir}");
+    const pathsFile = getPathsFile();
+    if (!fs.existsSync(pathsFile)) {
+        throw new Error(`Paths file does not exist: ${pathsFile}`);
     }
+
+    global.problemBuildsDir = fs.readFileSync(pathsFile, 'utf8');
 
     localDirDict = {};
 
@@ -76,7 +77,6 @@ function calculateDirectories() {
         const solutionFile = path.join(problemDir, language, 'solution.md');
         const userSolutionFilename = path.join(problemDir, language, 'solution.cpp');
 
-        // check if userSolutionFilename exissts
         if (!fs.existsSync(userSolutionFilename)) {
             throw new Error(`User solution file does not exist: ${userSolutionFilename}`);
         }
@@ -127,5 +127,5 @@ class DirectoryManager {
 
 module.exports = {
     DirectoryManager,
-    getProblemBuildsDirTmpFile
+    getPathsFile
 };
