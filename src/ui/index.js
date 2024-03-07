@@ -2,6 +2,7 @@ const path = require('path')
 const file = require('fs');
 const amdLoader = require('monaco-editor/min/vs/loader.js');
 const Split = require('split.js')
+const { ipcRenderer } = require('electron');
 
 const amdRequire = amdLoader.require;
 const amdDefine = amdLoader.require.define;
@@ -17,16 +18,20 @@ amdRequire.config({
 // workaround monaco-css not understanding the environment
 self.module = undefined;
 
-function saveSolution(problemName, language, content) {
-    if (!problemName) {
+function saveSolution(language, content) {
+    if (!previousProblem) {
         return;
     }
 
     const userSolutionFilename =
-        directoryManager.getUserSolutionFilename(problemName);
-    console.log("Saving problem " + problemName + " to " +
+        directoryManager.getUserSolutionFilename(previousProblem);
+    console.log("Saving problem " + previousProblem + " to " +
         userSolutionFilename);
     file.writeFileSync(userSolutionFilename, content);
+}
+
+function run() {
+    console.log("Running solution");
 }
 
 function setDescription(problemName) {
@@ -48,14 +53,13 @@ function setUserSolution(problemName) {
 
 var previousProblem;
 function onProblemSelected(problemName) {
-    saveSolution(previousProblem, 'cpp', editor.getValue());
+    saveSolution('cpp', editor.getValue());
     previousProblem = problemName;
     
     console.log(`Problem selected: ${problemName}`);
     setDescription(problemName);
     setSolution(problemName);
     setUserSolution(problemName);
-    console.log(`previousProblem: ${previousProblem}`);
 }
 
 function initializeProblemsCombo(problemNames) {
@@ -72,12 +76,40 @@ function initializeProblemsCombo(problemNames) {
     });
 }
 
+function initializeSaveCommand() {
+    ipcRenderer.on('save-command', () => {
+        console.log('Received save command');
+        saveSolution('cpp', editor.getValue());
+    });
+    
+    document.getElementById('save-button')
+        .addEventListener('click', function() {
+            console.log('Save button clicked');
+            saveSolution('cpp', editor.getValue());
+    });
+}
+
+function initializeRunCommand() {
+    ipcRenderer.on('run-command', () => {
+        console.log('Received run command');
+        run();
+    });
+    
+    document.getElementById('run-button')
+        .addEventListener('click', function() {
+            console.log('Run button clicked');
+            run();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
     var tabs = document.querySelectorAll('.tab');
 
     // For now...
     const problemNames = directoryManager.getProblemNames();
     initializeProblemsCombo(problemNames);
+    initializeSaveCommand();
+    initializeRunCommand();
 
     amdRequire(['vs/editor/editor.main'], function() {
         monaco.editor.setTheme('vs-dark');
