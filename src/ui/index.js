@@ -3,6 +3,8 @@ const file = require('fs');
 const amdLoader = require('monaco-editor/min/vs/loader.js');
 const Split = require('split.js')
 const { ipcRenderer } = require('electron');
+const { exec } = require('child_process');
+const DirectoryManager = require('./directory-manager.js');
 
 const amdRequire = amdLoader.require;
 const amdDefine = amdLoader.require.define;
@@ -14,6 +16,8 @@ const directoryManager = new directory_manager.DirectoryManager();
 amdRequire.config({
     baseUrl: path.join(__dirname, './node_modules/monaco-editor/min')
 });
+
+var activeProblem = null;
 
 // workaround monaco-css not understanding the environment
 self.module = undefined;
@@ -31,11 +35,33 @@ function saveSolution(language, content) {
 }
 
 function run() {
-    console.log("Running solution");
+    const pathsFile = DirectoryManager.getPathsFile();
+    if (!file.existsSync(pathsFile)) {
+        throw new Error(`Paths file does not exist: ${pathsFile}`);
+    }
+
+    problemBuildsDir = file.readFileSync(pathsFile, 'utf8');
+    problemBuildsDir = path.resolve(problemBuildsDir);
+    const extension = process.platform === 'win32' ? '.bat' : '.sh';
+
+    const command = `${problemBuildsDir}/openleetcode${extension} ` +
+    `--problem_builds_dir ${problemBuildsDir} ` +
+    `--language cpp ` +
+    `--problem ${activeProblem}`;
+
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+        }
+        // console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+        console.error(`stdout: ${stdout}`);
+      });
 }
 
 function setDescription(problemName) {
-    var element = document.querySelector('.markdown-content#description-content');
+    var element =
+        document.querySelector('.markdown-content#description-content');
     element.innerHTML = directoryManager.getDescription(problemName);
 }
 
@@ -60,6 +86,7 @@ function onProblemSelected(problemName) {
     setDescription(problemName);
     setSolution(problemName);
     setUserSolution(problemName);
+    activeProblem = problemName;
 }
 
 function initializeProblemsCombo(problemNames) {
