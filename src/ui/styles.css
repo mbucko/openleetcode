@@ -101,6 +101,7 @@ select:hover {
 
 .tab-content-left {
     height: 100vh;
+    margin: 5px;
 }
 
 .tab-content {
@@ -113,6 +114,16 @@ select:hover {
 
 .tab.selected {
     background-color: var(--panel_background);
+}
+
+.compilation-content {
+    background-color: var(--grey-very-dark);
+    width: 100%;
+    height: 100%;
+    white-space: pre-wrap; /* Wraps the text */
+    word-break: break-all; /* Breaks the words */
+    margin: 0;
+    padding: 3px;
 }
 
 .tab-separator {
