@@ -34,7 +34,28 @@ function saveSolution(language, content) {
     file.writeFileSync(userSolutionFilename, content);
 }
 
+function parseStdout(stdout) {
+    // stdout:
+    // LongestSubstringWithoutRepeatingCharacters for testcase All in language cpp
+    // Results written to /path\to/openleetcode/src/ui/testcase_output/<testname><datetime>.results
+    // Status: <status>
+    // Duration: <duration>ms
+    return stdout.match(/Results written to (.*\.results)/)[1];
+}
+
+function parseBuildError(stdout) {
+    // Running command: cmake --build ...
+    // <MATCHED BUILD ERROR>
+    // Error running the command: cmake --build
+    const regex = /cmake --build[\s\S]*?cmake --build/;
+    const match = stdout.match(regex);
+    const buildError = match[0].split('\n').slice(1, -1).join('\n');
+
+    return buildError;
+}
+
 function run() {
+    saveSolution('cpp', editor.getValue());
     const pathsFile = DirectoryManager.getPathsFile();
     if (!file.existsSync(pathsFile)) {
         throw new Error(`Paths file does not exist: ${pathsFile}`);
@@ -47,16 +68,34 @@ function run() {
     const command = `${problemBuildsDir}/openleetcode${extension} ` +
     `--problem_builds_dir ${problemBuildsDir} ` +
     `--language cpp ` +
-    `--problem ${activeProblem}`;
+    `--problem ${activeProblem} ` +
+    `--verbose`;
 
+    var resultsFilename;
     exec(command, (error, stdout, stderr) => {
         if (error) {
-          console.error(`exec error: ${error}`);
+            var element = document.getElementById("compilation-content");
+            element.textContent = parseBuildError(stdout);
+            document.getElementById('tab-compilation').click();
+            return;
         }
-        // console.log(`stdout: ${stdout}`);
-        console.error(`stderr: ${stderr}`);
-        console.error(`stdout: ${stdout}`);
-      });
+        var element = document.getElementById("compilation-content");
+        element.textContent = "";
+        
+        resultsFilename = parseStdout(stdout);
+        if (!resultsFilename) {
+            throw new Error("Could not parse results filename from stdout: " +
+                            "${stdout}");
+        }
+
+        if (!file.existsSync(resultsFilename)) {
+            throw new Error(`Results file does not exist: ${resultsFilename}`);
+        }
+    
+        const results = file.readFileSync(resultsFilename, 'utf8');
+        console.log(results);
+        const resultsJson = JSON.parse(results);
+    });
 }
 
 function setDescription(problemName) {

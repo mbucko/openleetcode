@@ -1,68 +1,74 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
-    <title>OpenLeetCode</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <script src="index.js"></script>
-  </head>
-  <body>
-    <div class="panel root-panel"></div>
-      <div class="control-panel">
-          <label class="label problem-label" for="problem-select">Problem:</label>
-          <select id="problem-select">
-          </select>
-          <button id="run-button">▶  Run</button>
-          <button id="save-button">Save</button>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+  <title>OpenLeetCode</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+  <div class="panel root-panel"></div>
+  <div class="control-panel">
+    <label class="label problem-label" for="problem-select">Problem:</label>
+    <select id="problem-select">
+    </select>
+    <button id="run-button">▶ Run</button>
+    <button id="save-button">Save</button>
+  </div>
+  <div class="panel">
+    <!-- Left Panel -->
+    <div id="left-panel" class="panel panel-col">
+      <div class="tab-panel panel-item-fixed-height">
+        <div class="tab">Description</div>
+        <div class="tab-separator"></div>
+        <div class="tab">Solution</div>
       </div>
-      <div class="panel">
-          <!-- Left Panel -->
-      <div id="left-panel" class="panel panel-col">
-          <div class="tab-panel panel-item-fixed-height">
-          <div class="tab">Description</div>
-          <div class="tab-separator"></div>
-          <div class="tab">Solution</div>
-          </div>
-          <div id="tab-description" class="tab-content tab-content-left active">
-          <div class="markdown-content content" id="description-content"></div>
-          </div>
-          <div id="tab-solution" class="tab-content tab-content-left">
-          <div class="markdown-content content" id="solution-content"></div>
-          </div>
-          <!-- Add more tab content panes as needed -->
+      <div id="tab-description" class="tab-content tab-content-left active">
+        <div class="markdown-content content" id="description-content"></div>
       </div>
-      <!-- Right Panel -->
-      <div id="right-panel" class="panel panel-col panel-item">
-          <!-- Right Panel TOP -->
-          <div id="top-right-panel" class="panel-item panel-left panel panel-col">
-            <div class="tab-panel">Code</div>
-            <div id="user-solution-content" class="panel panel-item">
-            </div>
-          </div>
-          <!-- Right Panel BOTTOM  -->
-          <div id="bottom-right-panel" class="panel-item">
-          <div class="tab-panel">
-              <div class="tab">Testcase</div>
-              <div class="tab-separator"></div>
-              <div class="tab">Test Results</div>
-              <div class="tab-separator"></div>
-              <div class="tab">Compilation</div>
-          </div>
-          <div id="tab-testcase" class="tab-content content active">
-              <div class="testcase-content" id="testcase-content content">
-              </div>
-          </div>
-          <div id="tab-test-results" class="tab-test-results content">
-              <div class="test-results-content" id="test-results-content"></div>
-          </div>
-          <div id="tab-compilation" class="tab-compilation content">
-              <div class="compilation-content" id="compilation-content"></div>
-          </div>
-          </div>
+      <div id="tab-solution" class="tab-content tab-content-left">
+        <div class="markdown-content content" id="solution-content"></div>
       </div>
-      </div>
+      <!-- Add more tab content panes as needed -->
     </div>
-  </body>
+    <!-- Left Panel END -->
+    <!-- Right Panel -->
+    <div id="right-panel" class="panel panel-col panel-item">
+      <!-- Right Panel TOP -->
+      <div id="top-right-panel" class="panel-item panel-left panel panel-col">
+        <div class="tab-panel">Code</div>
+        <div id="user-solution-content" class="panel panel-item"></div>
+      </div>
+      <!-- Right Panel TOP END -->
+      <!-- Right Panel BOTTOM  -->
+      <div id="bottom-right-panel" class="panel-item">
+        <div class="tab-panel">
+          <div class="tab">Testcase</div>
+          <div class="tab-separator"></div>
+          <div class="tab">Test Results</div>
+          <div class="tab-separator"></div>
+          <div class="tab" id="tab-compilation">Compilation</div>
+        </div>
+        <div id="tab-testcase" class="tab-content content active">
+          <div class="testcase-content" id="testcase-content content">
+          </div>
+        </div>
+        <div id="tab-test-results" class="tab-test-results content">
+          <div class="test-results-content" id="test-results-content"></div>
+        </div>
+        <div id="tab-compilation" class="tab-compilation content">
+          <pre class="compilation-content" id="compilation-content"></pre>
+        </div>
+      </div>
+      <!-- Right Panel BOTTOM END  -->
+    </div>
+    <!-- Right Panel END -->
+  </div>
+  </div>
+</body>
+
 </html>

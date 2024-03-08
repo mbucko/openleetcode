@@ -210,7 +210,7 @@ def main():
         sys.exit(1)
 
     if run(f"cmake --build {build_dir} --config Release") != 0:
-        print(logger.red("Cmake build failed!"))
+        print(logger.red("Build failed!"))
         sys.exit(1)
 
     if run(f"cmake --install {build_dir}") != 0:
