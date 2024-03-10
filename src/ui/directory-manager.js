@@ -4,11 +4,13 @@ const fs = require('fs');
 global.dirDict = null;
 global.languages = null;
 global.problemNames = null;
+global.resultsSchemaJson = null;
 
 global.problemBuildsDir = null;
 
 LANGUAGES_DIR_NAME = "languages";
 PROBLEMS_DIR_NAME = "problems";
+RESULTS_VALIDATION_SCHEMA_FILENAME = "results_validation_schema.json";
 
 function getPathsFile() {
     return path.resolve("filePaths.tmp")
@@ -93,9 +95,29 @@ function calculateDirectories() {
                 ["user-solution-filename"] = userSolutionFilename;
     });
 
+    const resultsSchemaFilename =
+        path.join(problemBuildsDir, RESULTS_VALIDATION_SCHEMA_FILENAME);
+
+    if (!fs.existsSync(resultsSchemaFilename)) {
+        throw new Error(`Results validation schema file 
+                            does not exist: 
+                            ${resultsSchemaFilename}`);
+    }
+
+    resultsSchema = fs.readFileSync(resultsSchemaFilename, 'utf8');
+
+    
+    const resultsSchemaJson = JSON.parse(resultsSchema);
+
+    if (!resultsSchemaJson) {
+        throw new Error(`Could not parse results validation schema from 
+                        ${resultsSchema}`);
+    }
+    
     global.dirDict = localDirDict;
     global.languages = languages;
     global.problemNames = problemNames;
+    global.resultsSchemaJson = resultsSchemaJson;
 }
 
 class DirectoryManager {
@@ -122,6 +144,10 @@ class DirectoryManager {
 
     getProblemNames() {
         return [...global.problemNames];
+    }
+    
+    getResultsSchemaJson() {
+        return global.resultsSchemaJson;
     }
 }
 

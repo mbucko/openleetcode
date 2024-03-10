@@ -97,6 +97,13 @@ select:hover {
     background-color: var(--content-background);
     color: var(--content-font-color);
     font-family: var(--content-font-family);
+    overflow-y: auto;
+    overflow-x: clip;
+}
+
+.bottom-right-content {
+    height: 300px;
+    overflow-y: auto;
 }
 
 .tab-content-left {

@@ -5,6 +5,7 @@ const Split = require('split.js')
 const { ipcRenderer } = require('electron');
 const { exec } = require('child_process');
 const DirectoryManager = require('./directory-manager.js');
+const { Validator } = require('jsonschema');
 
 const amdRequire = amdLoader.require;
 const amdDefine = amdLoader.require.define;
@@ -54,6 +55,46 @@ function parseBuildError(stdout) {
     return buildError;
 }
 
+function validateResults(results) {
+    try {
+        const schema = directoryManager.getResultsSchemaJson();
+        const v = new Validator();
+        const validation = v.validate(results, schema);
+        if (!validation.valid) {
+            console.error("Validation errors:", validation.errors);
+            return false;
+        }
+    } catch (e) {   
+        console.error("Error validating data:", e);
+        return false;
+    }
+
+    return true;
+}
+
+function setTestResults(results) {
+    if (!validateResults(results)) {
+        return;
+    }
+
+    const div = document.getElementById('test-results-content');
+
+    let html = `
+        <p>Duration: ${results.duration_ms} ms</p>
+        <p>Status: ${results.status}</p>
+        <p>Testcase Name: ${results.testcase_name}</p>
+        <hr>
+    `;
+
+    html += results.tests.map(test => `
+        <p>Testcase Name: ${test.testcase_name}</p>
+        <p>Status: ${test.status}</p>
+        <hr>
+    `).join('');
+
+    div.innerHTML = html;
+}
+
 function run() {
     saveSolution('cpp', editor.getValue());
     const pathsFile = DirectoryManager.getPathsFile();
@@ -95,6 +136,7 @@ function run() {
         const results = file.readFileSync(resultsFilename, 'utf8');
         console.log(results);
         const resultsJson = JSON.parse(results);
+        setTestResults(resultsJson);
     });
 }
 
