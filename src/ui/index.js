@@ -199,8 +199,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             tabContents.forEach(content => {
                 content.classList.remove('active');
             });
-    
-            var paneId = this.textContent.toLowerCase();
+     
+            var paneId = this.textContent.toLowerCase().replace(/\s/g, '-');
             var selectedPane = document.getElementById('tab-' + paneId);
             if (selectedPane) {
                 selectedPane.classList.add('active');
