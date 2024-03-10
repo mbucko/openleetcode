@@ -18,6 +18,9 @@
     --tab-font-color: var(--grey-font-color);
 
     --content-font-family: "Segoe UI";
+    
+    --scrollbar-foreground: #d4d4d4;
+    --scrollbarSlider-background: rgba(121, 121, 121, 0.4);
 }
 
 body {
@@ -80,6 +83,7 @@ select:hover {
     background-color: var(--tab-background);
     padding: 5px;
     color: var(--tab-font-color);
+    height: 18px;
 }
 
 .tab {
@@ -102,12 +106,10 @@ select:hover {
 }
 
 .bottom-right-content {
-    height: 300px;
     overflow-y: auto;
 }
 
 .tab-content-left {
-    height: 100vh;
     margin: 5px;
 }
 
@@ -126,7 +128,6 @@ select:hover {
 .compilation-content {
     background-color: var(--grey-very-dark);
     width: 100%;
-    height: 100%;
     white-space: pre-wrap; /* Wraps the text */
     word-break: break-all; /* Breaks the words */
     margin: 0;
@@ -168,6 +169,12 @@ select:hover {
     flex: none;
 }
 
+#test-results-content, #user-solution-content {
+    height: 100%; /* or any fixed height */
+    width: 100%; /* or any fixed width */
+    overflow: auto; /* add scrollbars if content overflows */
+}
+
 code {
     background-color: #ffffff12;
     border-color: #f7faff1f;
@@ -179,4 +186,21 @@ code {
     line-height: 1rem;
     padding: 0.125rem;
     white-space: pre-wrap;
+}
+
+.editor{
+    height: 100%;
+}
+
+html, body {
+    height: 100%;
+}
+
+#test-results-content, #user-solution-content, .tab-test-results, #bottom-right-panel, #root-panel, #tab-compilation, #tab-testcase, #compilation-content {
+    height: 100%;
+    overflow: auto;
+}
+
+#bottom-right-panel {
+    overflow: hidden;
 }

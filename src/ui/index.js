@@ -118,6 +118,7 @@ function run() {
             var element = document.getElementById("compilation-content");
             element.textContent = parseBuildError(stdout);
             document.getElementById('tab-compilation').click();
+            console.error("Error running command, error: ", error);
             return;
         }
         var element = document.getElementById("compilation-content");
@@ -229,7 +230,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     vertical: 'auto',
                     horizontal: 'auto'
                 },
-                automaticLayout: true
+                automaticLayout: true,
+                dimension: {
+                    width: 400,
+                    height: 400
+                }
         });
     
         onProblemSelected(problemNames[0]);
@@ -254,13 +259,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
 document.addEventListener('DOMContentLoaded', (event) => {
     Split(['#left-panel', '#right-panel'], {
         minSize: 100,
-        expandToMin: true,
+        sizes: [50, 50],
         gutterSize: 5,
     })
     
     Split(['#top-right-panel', '#bottom-right-panel'], {
         minSize: 100,
-        expandToMin: true,
+        sizes: [75, 25],
         gutterSize: 5,
         direction: 'vertical',
         cursor: 'row-resize',

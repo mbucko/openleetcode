@@ -11,7 +11,6 @@
 </head>
 
 <body>
-  <div class="panel root-panel"></div>
   <div class="control-panel">
     <label class="label problem-label" for="problem-select">Problem:</label>
     <select id="problem-select">
@@ -19,7 +18,7 @@
     <button id="run-button">▶ Run</button>
     <button id="save-button">Save</button>
   </div>
-  <div class="panel">
+  <div class="panel" id="root-panel">
     <!-- Left Panel -->
     <div id="left-panel" class="panel panel-col">
       <div class="tab-panel panel-item-fixed-height">
@@ -59,60 +58,15 @@
         </div>
         <div id="tab-test-results" class="tab-test-results tab-content tab-bottom-right content">
           <div class=" bottom-right-content" id="test-results-content">
-            <p>Duration: 21 ms</p>
-            <p>Status: Ok</p>
-            <p>Testcase Name: All</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
-        
-            <p>Testcase Name: All</p>
-            <p>Status: Success</p>
-            <hr>
           </div>
         </div>
-        <div id="tab-compilation" class="tab-compilation compilation-panel tab-content content active">
-          <pre class="compilation-content bottom-right-content content" id="compilation-content">ads  asasd as das as</pre>
+        <div id="tab-compilation" class="tab-compilation compilation-panel tab-content content">
+          <pre class="compilation-content bottom-right-content content" id="compilation-content"></pre>
         </div>
       </div>
       <!-- Right Panel BOTTOM END  -->
     </div>
     <!-- Right Panel END -->
-  </div>
   </div>
 </body>
 
