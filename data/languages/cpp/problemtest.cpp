@@ -93,11 +93,11 @@ std::vector<std::string> toLines(const std::string& testcase_file) {
 
 ProblemTest::ProblemTest(const std::string& test_dir_name,
                          const std::string& results_file_name,
-                         const std::string& testcase_name,
+                         const std::string& testcase_filter_name,
                          const std::string& testcase_file_name)
     : test_dir_name_(test_dir_name),
       results_file_name_(results_file_name),
-      testcase_name_(testcase_name),
+      testcase_filter_name_(testcase_filter_name),
       testcase_file_name_(testcase_file_name) {
 }
 
@@ -105,6 +105,17 @@ auto getDurationSince(const auto& start) {
     const auto end = std::chrono::high_resolution_clock::now();
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         end - start).count();
+}
+
+std::string getTestcaseName(const std::string& testcase_file_name) {
+    const std::filesystem::path path(testcase_file_name);
+    const std::string filename = path.filename().string();
+
+    std::string::size_type pos = filename.rfind(".test");
+    if (pos != std::string::npos) {
+        return filename.substr(0, pos);
+    }
+    return filename;
 }
 
 bool ProblemTest::runTest(
@@ -116,7 +127,7 @@ bool ProblemTest::runTest(
     Binder::return_type ret{};
     Binder::return_type expected{};
 
-    test["testcase_name"] = testcase_name_;
+    test["testcase_name"] = getTestcaseName(testcase_file_name);
 
     try {
         auto lines = toLines(testcase_file_name);
@@ -182,7 +193,7 @@ bool ProblemTest::run() const {
 
     nlohmann::json jsonObj;
     jsonObj["duration_ms"] = getDurationSince(start);
-    jsonObj["testcase_name"] = testcase_name_;
+    jsonObj["testcase_filter_name"] = testcase_filter_name_;
 
     if (success) {
         jsonObj["status"] = "Ok";

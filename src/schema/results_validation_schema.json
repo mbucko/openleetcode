@@ -12,7 +12,7 @@
         "stdout_schema": {
             "type": "string"
         },
-        "testcase_name_schema": {
+        "testcase_filter_name_schema": {
             "type": "string"
         },
         "test_schema": {
@@ -80,15 +80,15 @@
         "stdout": {
             "$ref": "#/definitions/stdout_schema"
         },
-        "testcase_name": {
-            "$ref": "#/definitions/testcase_name_schema"
+        "testcase_filter_name": {
+            "$ref": "#/definitions/testcase_filter_name_schema"
         }
     },
     "required": ["duration_ms", "status", "tests", "stderr"],
     "if": {
         "not": {
             "properties": {
-            "testcase_name": { "pattern": "^All$", "flags": "i" }
+            "testcase_filter_name": { "pattern": "^All$", "flags": "i" }
             }
         }
     },
