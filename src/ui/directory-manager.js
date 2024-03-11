@@ -10,6 +10,7 @@ global.problemBuildsDir = null;
 
 LANGUAGES_DIR_NAME = "languages";
 PROBLEMS_DIR_NAME = "problems";
+TESTCASES_DIR_NAME = "testcases";
 RESULTS_VALIDATION_SCHEMA_FILENAME = "results_validation_schema.json";
 
 function getPathsFile() {
@@ -149,9 +150,21 @@ class DirectoryManager {
     getResultsSchemaJson() {
         return global.resultsSchemaJson;
     }
+
+    getCustomTestcaseName() {
+        return "_custom_testcase";
+    }
+
+    getCustomTestcaseFilename(problemName) {
+        return path.join(problemBuildsDir,
+                         PROBLEMS_DIR_NAME,
+                         problemName,
+                         TESTCASES_DIR_NAME,
+                         this.getCustomTestcaseName() + '.test');
+    }
 }
 
 module.exports = {
     DirectoryManager,
-    getPathsFile
+    getPathsFile,
 };

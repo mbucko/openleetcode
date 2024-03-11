@@ -15,6 +15,7 @@
     <select id="problem-select">
     </select>
     <button id="run-button">▶ Run</button>
+    <button id="custom-testcase-button">▶ Custom Testcase</button>
     <button id="save-button">Save</button>
   </div>
   <div class="panel" id="root-panel">
@@ -52,7 +53,19 @@
           <div class="tab" id="tab-compilation-button">Compilation</div>
         </div>
         <div id="tab-testcase" class="tab-content bottom-right-content content active">
-          <div class="testcase-content" id="testcase-content tab-content content">
+          <!-- Testcase Container-->
+          <div id="tab-testcase-container">
+            <h5 class="testcase-container-title">Input:</h5>
+            <textarea id="input-container" class="testcase-container-text"></textarea>
+            <h5 class="testcase-container-title">Output:</h5>
+            <textarea readonly id="testcase-output" class="testcase-container-text">
+            </textarea>
+            <h5 class="testcase-container-title">Expected:</h5>
+            <textarea readonly id="expected-output" class="testcase-container-text">
+            </textarea>
+            <h5 class="testcase-container-title">Stdout:</h5>
+            <textarea readonly id="testcase-stdout" class="testcase-container-text"></textarea>
+          <!-- Testcase Container END -->
           </div>
         </div>
         <div id="tab-test-results" class="tab-test-results tab-content tab-bottom-right content">

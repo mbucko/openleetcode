@@ -53,6 +53,16 @@
                 },
                 "then": {
                     "required": ["actual", "expected", "reason", "testcase_file"]
+                },
+                "else": {
+                    "if": {
+                        "properties": {
+                            "status": { "const": "Skipped" }
+                        }
+                    },
+                    "then": {
+                        "required": ["actual"]
+                    }
                 }
             },
             "tests_schema": {

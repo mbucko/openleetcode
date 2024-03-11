@@ -193,7 +193,7 @@ html, body {
     height: 100%;
 }
 
-#test-results-content, #user-solution-content, .tab-test-results, #bottom-right-panel, #root-panel, #tab-compilation, #tab-testcase, #compilation-content {
+#test-results-content, #user-solution-content, .tab-test-results, #bottom-right-panel, #root-panel, #tab-compilation, #compilation-content {
     height: 100%;
     overflow: auto;
 }
@@ -216,4 +216,31 @@ html, body {
 .gutter.gutter-vertical {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
     cursor: row-resize;
+}
+
+#tab-testcase {
+    height: 100%;
+}
+
+#tab-testcase-container {
+    height: 100%;
+    overflow-y: visible;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.testcase-container-text {
+    background-color: var(--grey-very-dark);
+    color: var(--content-font-color);
+    font-family: var(--content-font-family);
+    overflow: hidden;
+    padding: 3px;
+    margin-right: 20px;
+    height: 60px;
+    width: 400px;
+}
+
+.testcase-container-title {
+    margin: 10px 3px 3px 3px;
 }
