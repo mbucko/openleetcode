@@ -95,7 +95,7 @@ function setTestResults(results) {
     if (!validateResults(results)) {
         return;
     }
-
+    console.log("Setting test results: " + JSON.stringify(results));
     const div = document.getElementById('test-results-content');
 
     let html = `
@@ -127,7 +127,7 @@ function setTestResults(results) {
     document.getElementById('tab-test-results-button').click();
 }
 
-function run(callback, testcase = 'All') {
+function run(callback, testcase = 'All', expected = false) {
     saveSolution('cpp', editor.getValue());
     const pathsFile = DirectoryManager.getPathsFile();
     if (!file.existsSync(pathsFile)) {
@@ -143,6 +143,7 @@ function run(callback, testcase = 'All') {
     `--language cpp ` +
     `--problem ${activeProblem} ` +
     `--testcase ${testcase} ` +
+    `${expected ? '--run-expected-tests ' : ''}` +
     `--verbose`;
 
     console.log("Running command: " + command);
@@ -150,8 +151,10 @@ function run(callback, testcase = 'All') {
     var resultsFilename;
     exec(command, (error, stdout, stderr) => {
         if (error) {
+            console.log("Error running the command, error: " + error +
+                        ", stderr: " + stderr + ", stdout: " + stdout);
             var element = document.getElementById("compilation-content");
-            element.textContent = parseBuildError(stdout);
+            element.textContent = parseBuildError(stdout + "\n" + error);
             document.getElementById('tab-compilation-button').click();
             return;
         }
@@ -187,13 +190,38 @@ function setCustomTestcaseResults(results) {
     }
 
     if (results.tests[0].status !== "Skipped") {
-        console.error("Expected custom test status to be skipped, got " +
+        console.error("Expected custom test status to be 'skipped', got " +
             results.tests[0].status);
     }
+
+    console.log("Setting custom testcase results: " + JSON.stringify(results));
 
     document.getElementById('testcase-stdout').textContent = results.stdout;
     document.getElementById('testcase-output').textContent =
         results.tests[0].actual;
+
+    run(setExpectedTestcaseResults, directoryManager.getCustomTestcaseName(),
+    true);
+}
+
+function setExpectedTestcaseResults(expected) {
+    if (!validateResults(expected)) {
+        return;
+    }
+
+    if (expected.tests.length !== 1) {
+        console.error("Expected 1 test results, got " +
+            expected.tests.length);
+            return;
+    }
+
+    if (expected.tests[0].status !== "Skipped") {
+        console.error("Expected test status to be 'skipped', got " +
+        expected.tests[0].status);
+    }
+
+    document.getElementById('expected-output').textContent =
+    expected.tests[0].actual;
 }
 
 function runCustomTestcase() {
@@ -214,7 +242,6 @@ function runCustomTestcase() {
     }
 
     console.log('Custom testcase written to ' + customTestcaseFilename);
-    console.log('Testcase input: ' + input);
 
     run(setCustomTestcaseResults, directoryManager.getCustomTestcaseName());
 }

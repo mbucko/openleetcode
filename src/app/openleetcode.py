@@ -59,8 +59,7 @@ def main():
         "--list-testcases",
         action="store_true",
         default=False,
-        help="List testcases for a problem specified with '--problem' option."
-    )
+        help="List testcases for a problem specified with '--problem' option.")
     parser.add_argument(
         "--problem", "-p",
         metavar='problem_name',
@@ -75,6 +74,11 @@ def main():
         type=str, 
         help=("Path to a directory with the problems. Usually "
               "./problem_builds/ directory. Default: problem_builds."))
+    parser.add_argument(
+        "--run-expected-tests", "-r",
+        action="store_true",
+        default=False,
+        help="Run the expected solution. Default: False.")
     parser.add_argument(
         "--testcase", "-t",
         metavar='testcase_name',
@@ -223,9 +227,15 @@ def main():
         print(logger.red(f"The bin directory {bin_dir} does not exist. Check "
                           "the problem_builds_dir and problem arguments."))
         sys.exit(1)
+    
+    exe_file_name = (
+        "solution_expected_" 
+        if args.run_expected_tests 
+        else "solution_"
+    )
 
     exe_file = os.path.abspath(os.path.join(
-        bin_dir, f"solution_{args.language}" + getExeExtension()))
+        bin_dir, f"{exe_file_name}{args.language}" + getExeExtension()))
     
     if not os.path.isfile(exe_file):
         print(logger.red(f"The file {exe_file} does not exist. Check the "
@@ -244,10 +254,11 @@ def main():
     output_file_dir = os.path.abspath(os.path.join(TESTCAST_OUTPUT_DIR))
 
     # Run the tests
-    ret, error_message = testrunner.runTests(exe_file, testcases_dir,
-                                                      output_file_dir,
-                                                      args.problem,
-                                                      args.testcase)
+    ret, error_message = testrunner.runTests(exe_file,
+                                             testcases_dir,
+                                             output_file_dir,
+                                             args.problem,
+                                             args.testcase)
 
     if ret != 0:
         print(logger.red(f"Tests failed! Error: {error_message}"))
