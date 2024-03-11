@@ -73,9 +73,24 @@ function registerRunCommand() {
         globalShortcut.isRegistered('CommandOrControl+R'))
 }
 
+function registerCustomTestcaseCommand() {
+    const ret = globalShortcut.register('CommandOrControl+T', () => {
+        console.log('CommandOrControl+T is pressed')
+        win.webContents.send('custom-testcase-command')
+    })
+
+    if (!ret) {
+        console.log('Registration failed!')
+    }
+
+    console.log("CommandOrControl+T registered: " +
+        globalShortcut.isRegistered('CommandOrControl+T'))
+}
+
 function registerCommands() {
     registerSaveCommand();
     registerRunCommand();
+    registerCustomTestcaseCommand();
 }
 
 app.whenReady().then(() => {

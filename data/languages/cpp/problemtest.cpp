@@ -22,6 +22,8 @@
 
 namespace {
 
+constexpr static char kAnyValue[] = "*";
+
 bool openFileForWriting(const std::string &filename, std::ofstream &out) {
     std::ofstream outfile(filename, std::ios::out | std::ios::trunc);
     if (!outfile.is_open()) {
@@ -134,15 +136,26 @@ bool ProblemTest::runTest(
         constexpr size_t expected_testcase_size =
             Binder::func_arg_size_v + 1;
         if (expected_testcase_size != lines.size()) {
-            std::cerr << "Incorrect number of parameters specified in the"
-                    << " testcase file. Must specify one line per "
-                    << "parameter + one line for expected output. "
-                    << "Found: " << lines.size() << " Expected: "
-                    << expected_testcase_size << "." << std::endl;
+            std::stringstream ss;
+            ss << "Incorrect number of parameters specified in the"
+               << " testcase file. Must specify one line per "
+               << "parameter + one line for expected output. "
+               << "Found: " << lines.size() << " Expected: "
+               << expected_testcase_size << ".";
+            std::cerr << ss.str() << std::endl;
             success = false;
+            test["reason"] = ss.str();
         } else {
             string expected_str;
             std::swap(expected_str, lines.back());
+
+            if (expected_str == kAnyValue) {
+                test["status"] = "Skipped";
+                test["actual"] =
+                    std::move(Binder::solve(solution, std::move(lines)));
+                return true;
+            }
+
             expected = std::move(parse<Binder::return_type>(expected_str));
             ret = std::move(Binder::solve(solution, std::move(lines)));
             success = Comparator::compare(ret, expected, true);

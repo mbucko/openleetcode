@@ -50,6 +50,9 @@ function parseBuildError(stdout) {
     // Error running the command: cmake --build
     const regex = /cmake --build[\s\S]*?cmake --build/;
     const match = stdout.match(regex);
+    if (!match || match.length === 0) {
+        return stdout;
+    }
     const buildError = match[0].split('\n').slice(1, -1).join('\n');
 
     return buildError;
@@ -124,7 +127,7 @@ function setTestResults(results) {
     document.getElementById('tab-test-results-button').click();
 }
 
-function run() {
+function run(callback, testcase = 'All') {
     saveSolution('cpp', editor.getValue());
     const pathsFile = DirectoryManager.getPathsFile();
     if (!file.existsSync(pathsFile)) {
@@ -139,7 +142,10 @@ function run() {
     `--problem_builds_dir ${problemBuildsDir} ` +
     `--language cpp ` +
     `--problem ${activeProblem} ` +
+    `--testcase ${testcase} ` +
     `--verbose`;
+
+    console.log("Running command: " + command);
 
     var resultsFilename;
     exec(command, (error, stdout, stderr) => {
@@ -165,8 +171,52 @@ function run() {
         const results = file.readFileSync(resultsFilename, 'utf8');
         console.log(results);
         const resultsJson = JSON.parse(results);
-        setTestResults(resultsJson);
+        callback(resultsJson);
     });
+}
+
+function setCustomTestcaseResults(results) {
+    if (!validateResults(results)) {
+        return;
+    }
+
+    if (results.tests.length !== 1) {
+        console.error("Expected 1 custom test results, got " +
+            results.tests.length);
+            return;
+    }
+
+    if (results.tests[0].status !== "Skipped") {
+        console.error("Expected custom test status to be skipped, got " +
+            results.tests[0].status);
+    }
+
+    document.getElementById('testcase-stdout').textContent = results.stdout;
+    document.getElementById('testcase-output').textContent =
+        results.tests[0].actual;
+}
+
+function runCustomTestcase() {
+    console.log("Running custom testcase for " + activeProblem);
+
+    const input = document.getElementById('input-container').value + "\n*";
+    const customTestcaseFilename =
+        directoryManager.getCustomTestcaseFilename(activeProblem);
+    if (!file.existsSync(path.dirname(customTestcaseFilename))) {
+        console.log('The directory does not exist. Directory: ' + path.dirname(customTestcaseFilename));
+        return;
+    }
+    
+    file.writeFileSync(customTestcaseFilename, input);
+    if (!file.existsSync(customTestcaseFilename)) {
+        throw new Error(`Failed to write custom testcase to ` +
+            `${customTestcaseFilename}`);
+    }
+
+    console.log('Custom testcase written to ' + customTestcaseFilename);
+    console.log('Testcase input: ' + input);
+
+    run(setCustomTestcaseResults, directoryManager.getCustomTestcaseName());
 }
 
 function setDescription(problemName) {
@@ -229,13 +279,26 @@ function initializeSaveCommand() {
 function initializeRunCommand() {
     ipcRenderer.on('run-command', () => {
         console.log('Received run command');
-        run();
+        run(setTestResults);
     });
     
     document.getElementById('run-button')
         .addEventListener('click', function() {
             console.log('Run button clicked');
-            run();
+            run(setTestResults);
+    });
+}
+
+function initializeCustomTestcaseCommand() {
+    ipcRenderer.on('custom-testcase-command', () => {
+        console.log('Received custom testcase command');
+        runCustomTestcase();
+    });
+
+    document.getElementById('custom-testcase-button')
+        .addEventListener('click', function() {
+            console.log('Custom testcase button clicked');
+            runCustomTestcase();
     });
 }
 
@@ -247,6 +310,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     initializeProblemsCombo(problemNames);
     initializeSaveCommand();
     initializeRunCommand();
+    initializeCustomTestcaseCommand();
 
     amdRequire(['vs/editor/editor.main'], function() {
         monaco.editor.setTheme('vs-dark');
