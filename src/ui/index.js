@@ -117,8 +117,7 @@ function run() {
         if (error) {
             var element = document.getElementById("compilation-content");
             element.textContent = parseBuildError(stdout);
-            document.getElementById('tab-compilation').click();
-            console.error("Error running command, error: ", error);
+            document.getElementById('tab-compilation-button').click();
             return;
         }
         var element = document.getElementById("compilation-content");
@@ -242,6 +241,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     tabs.forEach(tab => {
         tab.addEventListener('click', function(event) {
+            console.log('Tab clicked: ' + this.textContent);
             var tabContents = event.target.parentNode.parentNode.querySelectorAll('.tab-content');
             tabContents.forEach(content => {
                 content.classList.remove('active');
