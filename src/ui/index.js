@@ -259,12 +259,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     horizontal: 'auto'
                 },
                 automaticLayout: true,
-                dimension: {
-                    width: 400,
-                    height: 400
-                }
+                scrollBeyondLastLine: false
         });
-    
+
         onProblemSelected(problemNames[0]);
     });
 

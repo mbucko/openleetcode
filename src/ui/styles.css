@@ -164,16 +164,11 @@ select:hover {
 
 #top-right-panel {
     overflow: hidden;
+    height: 100%;
 }
 
 .panel-item-fixed-height {
     flex: none;
-}
-
-#test-results-content, #user-solution-content {
-    height: 100%; /* or any fixed height */
-    width: 100%; /* or any fixed width */
-    overflow: auto; /* add scrollbars if content overflows */
 }
 
 code {
