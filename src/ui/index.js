@@ -72,6 +72,22 @@ function validateResults(results) {
     return true;
 }
 
+function readTestcaseFile(filename) {
+    if (filename == undefined) {
+        console.error("Testcase file not defined");
+        return "Testcase file not defined";
+    }
+    try {
+        var testcaseFileContent = file.readFileSync(filename, "utf8");
+        testcaseFileContent =
+            testcaseFileContent.replace(/\n/g, "<br>&emsp;");
+            return testcaseFileContent;
+    } catch (err) {              
+        console.error("Error reading file ${filename}:", err);
+        return "Error reading file ${filename}: ${err}";
+    }
+}
+
 function setTestResults(results) {
     if (!validateResults(results)) {
         return;
@@ -82,17 +98,30 @@ function setTestResults(results) {
     let html = `
         <p>Duration: ${results.duration_ms} ms</p>
         <p>Status: ${results.status}</p>
-        <p>Testcase Name: ${results.testcase_name}</p>
+        <p>Testcase Filter: ${results.testcase_filter_name}</p>
         <hr>
     `;
 
-    html += results.tests.map(test => `
-        <p>Testcase Name: ${test.testcase_name}</p>
-        <p>Status: ${test.status}</p>
-        <hr>
-    `).join('');
+    html += results.tests.map(test => {
+        
+        var testcase;
+        if (test.testcase_file !== undefined) {
+            testcase = readTestcaseFile(test.testcase_file);
+        }
+    
+        return `
+            <p>Testcase Name: ${test.testcase_name}</p>
+            <p>Status: ${test.status}</p>
+            ${test.actual ? `<p>Actual: ${test.actual}</p>` : ''}
+            ${test.expected ? `<p>Expected: ${test.expected}</p>` : ''}
+            ${test.reason ? `<p>Reason: ${test.reason}</p>` : ''}
+            ${testcase ? `<p>Testcase: ${testcase}</p>` : ''}
+            <hr>
+        `;
+    }).join('');
 
     div.innerHTML = html;
+    document.getElementById('tab-test-results-button').click();
 }
 
 function run() {
@@ -265,7 +294,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     Split(['#top-right-panel', '#bottom-right-panel'], {
         minSize: 100,
-        sizes: [75, 25],
+        sizes: [60, 40],
         gutterSize: 5,
         direction: 'vertical',
         cursor: 'row-resize',
