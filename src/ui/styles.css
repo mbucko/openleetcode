@@ -126,6 +126,7 @@ select:hover {
 }
 
 .compilation-content {
+    box-sizing: border-box; /* Add this line */
     background-color: var(--grey-very-dark);
     width: 100%;
     white-space: pre-wrap; /* Wraps the text */
