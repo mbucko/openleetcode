@@ -77,6 +77,8 @@ select:hover {
 
 .markdown-content {
     color: var(--panel_foreground);
+    background-color: var(--grey-very-dark);
+    height: 100%;
 }
 .tab-panel {
     display: flex;
@@ -98,23 +100,23 @@ select:hover {
 }
 
 .content {
-    background-color: var(--content-background);
+    background-color: var(--grey-very-dark);
     color: var(--content-font-color);
     font-family: var(--content-font-family);
     overflow-y: auto;
     overflow-x: clip;
+    padding: 3px;
 }
 
 .bottom-right-content {
     overflow-y: auto;
 }
 
-.tab-content-left {
-    margin: 5px;
-}
-
 .tab-content {
     display: none;
+    height: 100%;
+    background-color: var(--grey-very-dark);
+    box-sizing: border-box;
 }
 
 .tab-content.active {
@@ -126,13 +128,12 @@ select:hover {
 }
 
 .compilation-content {
-    box-sizing: border-box; /* Add this line */
+    box-sizing: border-box;
     background-color: var(--grey-very-dark);
     width: 100%;
-    white-space: pre-wrap; /* Wraps the text */
-    word-break: break-all; /* Breaks the words */
+    white-space: pre-wrap;
+    word-break: break-all;
     margin: 0;
-    padding: 3px;
 }
 
 .tab-separator {
@@ -154,7 +155,7 @@ select:hover {
 .panel-col {
     display: flex;
     flex-direction: column;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .panel-item {
