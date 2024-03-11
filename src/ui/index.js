@@ -286,13 +286,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
     Split(['#left-panel', '#right-panel'], {
         minSize: 100,
         sizes: [50, 50],
-        gutterSize: 5,
+        gutterSize: 7,
     })
     
     Split(['#top-right-panel', '#bottom-right-panel'], {
         minSize: 100,
         sizes: [60, 40],
-        gutterSize: 5,
+        gutterSize: 7,
         direction: 'vertical',
         cursor: 'row-resize',
     })
