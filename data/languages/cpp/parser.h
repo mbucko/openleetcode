@@ -10,6 +10,12 @@
 
 #include "typetraits.h"
 
+void removeOuterSpaces(std::string& value) {
+    const auto start = value.find_first_not_of(' ');
+    const auto end = value.find_last_not_of(' ');
+    value = value.substr(start, end - start + 1);
+}
+
 bool hasEncapsulatedTokens(const std::string& str, char start, char end) {
     if (str.empty()) {
         return false;
@@ -72,6 +78,7 @@ std::vector<std::string> splitIgnoreBrackets(const std::string& str,
 
 template <typename T>
 std::enable_if_t<std::is_same_v<char, T>, T> parse(std::string& value) {
+    removeOuterSpaces(value);
     if (value.size() != 3 || !isCharFormatOk(value)) {
         std::stringstream ss;
         ss << "Error: Invalid char format. Must be of length 3 and contain "
@@ -83,10 +90,11 @@ std::enable_if_t<std::is_same_v<char, T>, T> parse(std::string& value) {
 
 template <typename T>
 std::enable_if_t<std::is_same_v<std::string, T>, T> parse(std::string& value) {
+    removeOuterSpaces(value);
     if (!isStringFormatOk(value)) {
         std::stringstream ss;
-        ss << "Error: Invalid string format. Must contain \"s. String: "
-           << value;
+        ss << "Error: Invalid string format. The input string must be enclosed" 
+              " in quotes. Current value: " << value;
         throw std::runtime_error(ss.str());
     }
     return removeQuotes(value);
@@ -94,8 +102,10 @@ std::enable_if_t<std::is_same_v<std::string, T>, T> parse(std::string& value) {
 
 template <typename T>
 std::enable_if_t<std::is_integral_v<T>, T> parse(const std::string& value) {
+    std::string valueCopy = value;
+    removeOuterSpaces(valueCopy);
     T ret{};
-    std::stringstream ss(value);
+    std::stringstream ss(valueCopy);
     ss >> ret;
     return ret;
 }
@@ -103,6 +113,7 @@ std::enable_if_t<std::is_integral_v<T>, T> parse(const std::string& value) {
 template <typename T>
 std::enable_if_t<is_vector_type<T>::value, T> parse(auto&& value) {
     using element_type = typename T::value_type;
+    removeOuterSpaces(value);
     T vec;
     if (!isArrayFormatOk(value)) {
         std::stringstream ss;
