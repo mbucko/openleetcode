@@ -182,16 +182,19 @@ function setCustomTestcaseResults(results) {
     if (!validateResults(results)) {
         return;
     }
+    
+    document.getElementById('testcase-stderr').textContent = results.stderr;
 
     if (results.tests.length !== 1) {
         console.error("Expected 1 custom test results, got " +
             results.tests.length);
-            return;
+        return;
     }
 
     if (results.tests[0].status !== "Skipped") {
         console.error("Expected custom test status to be 'skipped', got " +
             results.tests[0].status);
+        return;
     }
 
     console.log("Setting custom testcase results: " + JSON.stringify(results));
@@ -202,6 +205,8 @@ function setCustomTestcaseResults(results) {
 
     run(setExpectedTestcaseResults, directoryManager.getCustomTestcaseName(),
     true);
+
+    document.getElementById('tab-testcases').click();
 }
 
 function setExpectedTestcaseResults(expected) {
@@ -226,6 +231,12 @@ function setExpectedTestcaseResults(expected) {
 
 function runCustomTestcase() {
     console.log("Running custom testcase for " + activeProblem);
+
+    document.getElementById('testcase-stdout').textContent = "";
+    document.getElementById('testcase-stderr').textContent = "";
+    document.getElementById('testcase-output').textContent = "";
+    document.getElementById('compilation-content').textContent = "";
+    document.getElementById('test-results-content').innerHTML = "";
 
     const input = document.getElementById('input-container').value + "\n*";
     const customTestcaseFilename =
@@ -266,6 +277,10 @@ function setUserSolution(problemName) {
 
 var previousProblem;
 function onProblemSelected(problemName) {
+    document.getElementById('testcase-stdout').textContent = "";
+    document.getElementById('testcase-stderr').textContent = "";
+    document.getElementById('testcase-output').textContent = "";
+
     saveSolution('cpp', editor.getValue());
     previousProblem = problemName;
     
@@ -306,12 +321,16 @@ function initializeSaveCommand() {
 function initializeRunCommand() {
     ipcRenderer.on('run-command', () => {
         console.log('Received run command');
+        document.getElementById('compilation-content').textContent = "";
+        document.getElementById('test-results-content').innerHTML = "";
         run(setTestResults);
     });
     
     document.getElementById('run-button')
         .addEventListener('click', function() {
             console.log('Run button clicked');
+            document.getElementById('compilation-content').textContent = "";
+            document.getElementById('test-results-content').innerHTML = "";
             run(setTestResults);
     });
 }
