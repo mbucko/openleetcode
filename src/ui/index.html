@@ -46,7 +46,7 @@
       <!-- Right Panel BOTTOM  -->
       <div id="bottom-right-panel" class="panel-item">
         <div class="tab-panel">
-          <div class="tab">Testcase</div>
+          <div class="tab" id="tab-testcases">Testcase</div>
           <div class="tab-separator"></div>
           <div class="tab" id="tab-test-results-button">Test Results</div>
           <div class="tab-separator"></div>
@@ -56,15 +56,20 @@
           <!-- Testcase Container-->
           <div id="tab-testcase-container">
             <h5 class="testcase-container-title">Input:</h5>
-            <textarea id="input-container" class="testcase-container-text"></textarea>
-            <h5 class="testcase-container-title">Output:</h5>
-            <textarea readonly id="testcase-output" class="testcase-container-text">
+            <textarea id="input-container" class="testcase-container-text">
             </textarea>
             <h5 class="testcase-container-title">Expected:</h5>
             <textarea readonly id="expected-output" class="testcase-container-text">
             </textarea>
+            <h5 class="testcase-container-title">Output:</h5>
+            <textarea readonly id="testcase-output" class="testcase-container-text">
+            </textarea>
             <h5 class="testcase-container-title">Stdout:</h5>
-            <textarea readonly id="testcase-stdout" class="testcase-container-text"></textarea>
+            <textarea readonly id="testcase-stdout" class="testcase-container-text">
+            </textarea>
+            <h5 class="testcase-container-title">Stderr:</h5>
+            <textarea readonly id="testcase-stderr" class="testcase-container-text">
+            </textarea>
           <!-- Testcase Container END -->
           </div>
         </div>
