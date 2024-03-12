@@ -134,6 +134,7 @@ select:hover {
     white-space: pre-wrap;
     word-break: break-all;
     margin: 0;
+    font-size: small;
 }
 
 .tab-separator {
