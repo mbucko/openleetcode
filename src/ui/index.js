@@ -115,8 +115,8 @@ function setTestResults(results) {
         return `
             <p>Testcase Name: ${test.testcase_name}</p>
             <p>Status: ${test.status}</p>
-            ${test.actual ? `<p>Actual: ${test.actual}</p>` : ''}
-            ${test.expected ? `<p>Expected: ${test.expected}</p>` : ''}
+            ${test.actual ? `<p>Actual: ${JSON.stringify(test.actual)}</p>` : ''}
+            ${test.expected ? `<p>Expected: ${JSON.stringify(test.expected)}</p>` : ''}
             ${test.reason ? `<p>Reason: ${test.reason}</p>` : ''}
             ${testcase ? `<p>Testcase: ${testcase}</p>` : ''}
             <hr>
@@ -201,7 +201,7 @@ function setCustomTestcaseResults(results) {
 
     document.getElementById('testcase-stdout').textContent = results.stdout;
     document.getElementById('testcase-output').textContent =
-        results.tests[0].actual;
+    JSON.stringify(results.tests[0].actual);
 
     run(setExpectedTestcaseResults, directoryManager.getCustomTestcaseName(),
     true);
@@ -226,7 +226,7 @@ function setExpectedTestcaseResults(expected) {
     }
 
     document.getElementById('expected-output').textContent =
-    expected.tests[0].actual;
+        JSON.stringify(expected.tests[0].actual);
 }
 
 function runCustomTestcase() {
