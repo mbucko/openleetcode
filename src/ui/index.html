@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <title>OpenLeetCode</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+  <div class="control-panel">
+    <label class="label problem-label" for="problem-select">Problem:</label>
+    <select id="problem-select">
+    </select>
+    <button id="run-button">▶ Run</button>
+    <button id="custom-testcase-button">▶ Custom Testcase</button>
+    <button id="save-button">Save</button>
+  </div>
+  <div class="panel" id="root-panel">
+    <!-- Left Panel -->
+    <div id="left-panel" class="panel panel-col">
+      <div class="tab-panel panel-item-fixed-height">
+        <div class="tab">Description</div>
+        <div class="tab-separator"></div>
+        <div class="tab">Solution</div>
+      </div>
+      <div id="tab-description" class="tab-content tab-content-left active">
+        <div class="markdown-content content" id="description-content"></div>
+      </div>
+      <div id="tab-solution" class="tab-content tab-content-left">
+        <div class="markdown-content content" id="solution-content"></div>
+      </div>
+      <!-- Add more tab content panes as needed -->
+    </div>
+    <!-- Left Panel END -->
+    <!-- Right Panel -->
+    <div id="right-panel" class="panel panel-col panel-item">
+      <!-- Right Panel TOP -->
+      <div id="top-right-panel" class="panel-item panel-left panel panel-col">
+        <div class="tab-panel">Code</div>
+        <div id="user-solution-content" class="panel panel-item"></div>
+      </div>
+      <!-- Right Panel TOP END -->
+      <!-- Right Panel BOTTOM  -->
+      <div id="bottom-right-panel" class="panel-item">
+        <div class="tab-panel">
+          <div class="tab" id="tab-testcases">Testcase</div>
+          <div class="tab-separator"></div>
+          <div class="tab" id="tab-test-results-button">Test Results</div>
+          <div class="tab-separator"></div>
+          <div class="tab" id="tab-compilation-button">Compilation</div>
+        </div>
+        <div id="tab-testcase" class="tab-content bottom-right-content content active">
+          <!-- Testcase Container-->
+          <div id="tab-testcase-container">
+            <h5 class="testcase-container-title">Input:</h5>
+            <textarea id="input-container" class="testcase-container-text"></textarea>
+            <h5 class="testcase-container-title">Expected:</h5>
+            <textarea readonly id="expected-output" class="testcase-container-text"></textarea>
+            <h5 class="testcase-container-title">Output:</h5>
+            <textarea readonly id="testcase-output" class="testcase-container-text"></textarea>
+            <h5 class="testcase-container-title">Stdout:</h5>
+            <textarea readonly id="testcase-stdout" class="testcase-container-text"></textarea>
+            <h5 class="testcase-container-title">Stderr:</h5>
+            <textarea readonly id="testcase-stderr" class="testcase-container-text"></textarea>
+          <!-- Testcase Container END -->
+          </div>
+        </div>
+        <div id="tab-test-results" class="tab-test-results tab-content tab-bottom-right content">
+          <div class="bottom-right-content" id="test-results-content">
+          </div>
+        </div>
+        <div id="tab-compilation" class="tab-compilation compilation-panel tab-content content">
+          <pre class="compilation-content bottom-right-content content" id="compilation-content"></pre>
+        </div>
+      </div>
+      <!-- Right Panel BOTTOM END  -->
+    </div>
+    <!-- Right Panel END -->
+  </div>
+</body>
+
+</html>

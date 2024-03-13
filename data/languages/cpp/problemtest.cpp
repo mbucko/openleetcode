@@ -22,6 +22,8 @@
 
 namespace {
 
+constexpr static char kAnyValue[] = "*";
+
 bool openFileForWriting(const std::string &filename, std::ofstream &out) {
     std::ofstream outfile(filename, std::ios::out | std::ios::trunc);
     if (!outfile.is_open()) {
@@ -93,11 +95,11 @@ std::vector<std::string> toLines(const std::string& testcase_file) {
 
 ProblemTest::ProblemTest(const std::string& test_dir_name,
                          const std::string& results_file_name,
-                         const std::string& testcase_name,
+                         const std::string& testcase_filter_name,
                          const std::string& testcase_file_name)
     : test_dir_name_(test_dir_name),
       results_file_name_(results_file_name),
-      testcase_name_(testcase_name),
+      testcase_filter_name_(testcase_filter_name),
       testcase_file_name_(testcase_file_name) {
 }
 
@@ -105,6 +107,17 @@ auto getDurationSince(const auto& start) {
     const auto end = std::chrono::high_resolution_clock::now();
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         end - start).count();
+}
+
+std::string getTestcaseName(const std::string& testcase_file_name) {
+    const std::filesystem::path path(testcase_file_name);
+    const std::string filename = path.filename().string();
+
+    std::string::size_type pos = filename.rfind(".test");
+    if (pos != std::string::npos) {
+        return filename.substr(0, pos);
+    }
+    return filename;
 }
 
 bool ProblemTest::runTest(
@@ -116,22 +129,33 @@ bool ProblemTest::runTest(
     Binder::return_type ret{};
     Binder::return_type expected{};
 
-    test["testcase_name"] = testcase_name_;
+    test["testcase_name"] = getTestcaseName(testcase_file_name);
 
     try {
         auto lines = toLines(testcase_file_name);
         constexpr size_t expected_testcase_size =
             Binder::func_arg_size_v + 1;
         if (expected_testcase_size != lines.size()) {
-            std::cerr << "Incorrect number of parameters specified in the"
-                    << " testcase file. Must specify one line per "
-                    << "parameter + one line for expected output. "
-                    << "Found: " << lines.size() << " Expected: "
-                    << expected_testcase_size << "." << std::endl;
+            std::stringstream ss;
+            ss << "Incorrect number of parameters specified in the"
+               << " testcase file. Must specify one line per "
+               << "parameter + one line for expected output. "
+               << "Found: " << lines.size() << " Expected: "
+               << expected_testcase_size << ".";
+            std::cerr << ss.str() << std::endl;
             success = false;
+            test["reason"] = ss.str();
         } else {
             string expected_str;
             std::swap(expected_str, lines.back());
+
+            if (expected_str == kAnyValue) {
+                test["status"] = "Skipped";
+                test["actual"] =
+                    std::move(Binder::solve(solution, std::move(lines)));
+                return true;
+            }
+
             expected = std::move(parse<Binder::return_type>(expected_str));
             ret = std::move(Binder::solve(solution, std::move(lines)));
             success = Comparator::compare(ret, expected, true);
@@ -182,7 +206,7 @@ bool ProblemTest::run() const {
 
     nlohmann::json jsonObj;
     jsonObj["duration_ms"] = getDurationSince(start);
-    jsonObj["testcase_name"] = testcase_name_;
+    jsonObj["testcase_filter_name"] = testcase_filter_name_;
 
     if (success) {
         jsonObj["status"] = "Ok";

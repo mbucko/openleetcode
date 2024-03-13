@@ -42,8 +42,8 @@ def getExeExtension():
 def main():
     parser = argparse.ArgumentParser(
         description="OpenLeetCode problem builder. This script builds and "
-                    "tests a leetcode like problems locally. Currently, it "
-                    "only supports C++ language but it can be extended to "
+                    "tests a LeetCode-like problems locally. Currently, it "
+                    "only supports C++ language, but it can be extended to "
                     "support other languages.")
     parser.add_argument(
         "--language", "-l",
@@ -59,8 +59,7 @@ def main():
         "--list-testcases",
         action="store_true",
         default=False,
-        help="List testcases for a problem specified with '--problem' option."
-    )
+        help="List testcases for a problem specified with '--problem' option.")
     parser.add_argument(
         "--problem", "-p",
         metavar='problem_name',
@@ -70,11 +69,16 @@ def main():
         "--list-problems to list all problems.")
     parser.add_argument(
         "--problem_builds_dir", "-d",
-        default="problem_builds", 
         metavar='dir', 
         type=str, 
-        help=("Path to a directory with the problems. Usually "
-              "./problem_builds/ directory. Default: problem_builds."))
+        help=("Specifies the directory with the problems. Typically, this is "
+            "'./problem_builds'. If not provided, the script defaults to "
+            "'./problem_builds' in the same directory as the executable."))
+    parser.add_argument(
+        "--run-expected-tests", "-r",
+        action="store_true",
+        default=False,
+        help="Run the expected solution. Default: False.")
     parser.add_argument(
         "--testcase", "-t",
         metavar='testcase_name',
@@ -91,10 +95,15 @@ def main():
 
     logger.set_verbose(args.verbose)
 
-    problem_builds_dir = os.path.abspath(args.problem_builds_dir)
+    openleetcode_dir = os.path.dirname(os.path.realpath(__file__))
+    if args.problem_builds_dir is None:
+        
+        problem_builds_dir = openleetcode_dir
+    else:
+        problem_builds_dir = os.path.abspath(args.problem_builds_dir)
 
     if not os.path.isdir(problem_builds_dir):
-        print(logger.red(f"The problems directory {args.problem_builds_dir} "
+        print(logger.red(f"The problems directory {problem_builds_dir} "
                          f"does not exist."))
         sys.exit(1)
 
@@ -110,20 +119,14 @@ def main():
             print(problem)
         sys.exit(1)
 
-    if not os.path.isdir(args.problem_builds_dir):
-        print(logger.red(f"The build directory '{args.problem_builds_dir}' "
-                         f"does not exist."))
-        sys.exit(1)
-
-    problem_dir = os.path.join(args.problem_builds_dir,
-                            "problems", args.problem)
+    problem_dir = os.path.join(problem_builds_dir, "problems", args.problem)
     if not os.path.isdir(problem_dir):
         print(logger.red(f"The problem directory {problem_dir} does not exist. "
                          f"Check the problem_builds_dir and problem "
                          f"arguments."))
         sys.exit(1)
 
-    src_template_dir = os.path.join(args.problem_builds_dir, "languages",
+    src_template_dir = os.path.join(problem_builds_dir, "languages",
                                     args.language)
     if not os.path.isdir(src_template_dir):
         print(logger.red(f"The source template directory {src_template_dir} "
@@ -160,6 +163,7 @@ def main():
           " for testcase " + args.testcase + " in language " + args.language)
     logger.log(f"Building the problem {args.problem} "
                f"in {args.language} language.")
+    logger.log(f"OpenLeetCode directory: {openleetcode_dir}")
     logger.log(f"Problem directory: {problem_dir}")
     logger.log(f"Problems directory: {problems_dir}")
     logger.log(f"Problem builds directory: {problem_builds_dir}")
@@ -185,7 +189,7 @@ def main():
     logger.log(f"Writing the function name to {solution_function_file_name}")
 
     validation_schema_file = os.path.abspath(
-        os.path.join(problem_builds_dir, VALIDATION_SCHEMA_FILE_NAME))
+        os.path.join(openleetcode_dir, VALIDATION_SCHEMA_FILE_NAME))
     if not os.path.isfile(validation_schema_file):
         print(logger.red(f"The validation schema file {validation_schema_file} "
                          f"does not exist."))
@@ -210,7 +214,7 @@ def main():
         sys.exit(1)
 
     if run(f"cmake --build {build_dir} --config Release") != 0:
-        print(logger.red("Cmake build failed!"))
+        print(logger.red("Build failed!"))
         sys.exit(1)
 
     if run(f"cmake --install {build_dir}") != 0:
@@ -223,9 +227,15 @@ def main():
         print(logger.red(f"The bin directory {bin_dir} does not exist. Check "
                           "the problem_builds_dir and problem arguments."))
         sys.exit(1)
+    
+    exe_file_name = (
+        "solution_expected_" 
+        if args.run_expected_tests 
+        else "solution_"
+    )
 
     exe_file = os.path.abspath(os.path.join(
-        bin_dir, f"solution_{args.language}" + getExeExtension()))
+        bin_dir, f"{exe_file_name}{args.language}" + getExeExtension()))
     
     if not os.path.isfile(exe_file):
         print(logger.red(f"The file {exe_file} does not exist. Check the "
@@ -244,10 +254,11 @@ def main():
     output_file_dir = os.path.abspath(os.path.join(TESTCAST_OUTPUT_DIR))
 
     # Run the tests
-    ret, error_message = testrunner.runTests(exe_file, testcases_dir,
-                                                      output_file_dir,
-                                                      args.problem,
-                                                      args.testcase)
+    ret, error_message = testrunner.runTests(exe_file,
+                                             testcases_dir,
+                                             output_file_dir,
+                                             args.problem,
+                                             args.testcase)
 
     if ret != 0:
         print(logger.red(f"Tests failed! Error: {error_message}"))
