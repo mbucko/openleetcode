@@ -10,11 +10,12 @@ function saveFilePaths() {
     var problemBuildsDir = "./problem_builds";
     var problemBuildsArg = process.argv.find(arg => arg.startsWith('--problem_builds_dir='));
     
-    if (problemBuildsArg) {
+    if (problemBuildsArg && problemBuildsArg.length > 0) {
         problemBuildsDir = problemBuildsArg.split('=')[1];
         console.log("Setting problemBuildsDir to " + problemBuildsDir);
     } else {
         console.log("problemBuildsDir was not set. Using default " + problemBuildsDir);
+        console.log("process.argv: " + process.argv);
     }
     problemBuildsDir = path.resolve(problemBuildsDir);
     

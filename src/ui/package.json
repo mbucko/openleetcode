@@ -1,6 +1,6 @@
 {
-    "name": "ui",
-    "productName": "ui",
+    "name": "openleetcodeui",
+    "productName": "OpenLeetCodeUI",
     "description": "OpenLeetCode UI",
     "keywords": [],
     "main": "./main.js",
@@ -16,6 +16,7 @@
         "split.js": "^1.6.5"
     },
     "devDependencies": {
-        "electron": "^29.1.0"
+        "electron": "^29.1.0",
+        "electron-packager": "^17.1.2"
     }
 }
