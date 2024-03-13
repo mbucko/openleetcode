@@ -42,8 +42,8 @@ def getExeExtension():
 def main():
     parser = argparse.ArgumentParser(
         description="OpenLeetCode problem builder. This script builds and "
-                    "tests a leetcode like problems locally. Currently, it "
-                    "only supports C++ language but it can be extended to "
+                    "tests a LeetCode-like problems locally. Currently, it "
+                    "only supports C++ language, but it can be extended to "
                     "support other languages.")
     parser.add_argument(
         "--language", "-l",

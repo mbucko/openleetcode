@@ -2,7 +2,7 @@ OpenLeetCode - An open source version of LeetCode
 --------------------------------------------------------
 Welcome to the OpenLeetCode Project!
 
-The motivation behind this project is to be able to practice LeetCode problems on a plane without requiring an internet connection (until Starlink ramps up). It is by no means intended to replace or replicate leetcode.com.
+The motivation behind this project is to be able to practice LeetCode problems on a plane without requiring an internet connection (until Starlink ramps up). This project is not intended to replace or replicate leetcode.com.
 
 ## Table of Contents
 
@@ -21,67 +21,83 @@ The motivation behind this project is to be able to practice LeetCode problems o
 ## Windows Terminal
 
 ### Build
+#### Building without UI
 ```cmd
-cmake -B build -DCMAKE_BUILD_TYPE=Debug -DPROBLEM_BUILDS_NAME=problem_builds
+cmake -B build -DCMAKE_INSTALL_PREFIX=install
 cmake --build build
-cmake --install build --config Debug
+cmake --install build --prefix=install
+```
+#### Building with UI
+```cmd
+cmake -B build -DCMAKE_INSTALL_PREFIX=install -DBUILD_UI=ON
+cmake --build build
+cmake --install build --prefix=install
 ```
 ### Run
-#### Windows Terminal
+#### CLI - Windows Terminal
 ```cmd
-./problem_builds/openleetcode --problem_builds_dir ./problem_builds --language cpp --problem TwoSum
+./problem_builds/openleetcode --language cpp --problem TwoSum
 ```
-#### Unix
+#### CLI - Unix
 ```bash
-./problem_builds/openleetcode.sh --problem_builds_dir ./problem_builds --language cpp --problem TwoSum
+./problem_builds/openleetcode.sh --language cpp --problem TwoSum
 ```
+#### UI - Windows Terminal
+```cmd
+./problem_builds/openleetcodeui
+```
+#### UI - Unix
+```bash
+./problem_builds/openleetcodeui.sh
+```
+NOTE: UI for unix is yet to be tested.
+
+
 
 ## How To Use
-The above example runs **TwoSum** problem using **C++**.
-After the build succeeds the following directory structure will be generated in the folder specified by ``--problem_builds_dir`` flag. In this example it's a folder called ``problem_builds`` as follows:.
+After the build succeeds, the following directory structure will be generated:
 
-- problem_builds
-  - problems
-    - TwoSum
-      - cpp
-        - solution.cpp
-        - ...
-      - testcases
-        - TestCase1.test
-        - TestCase2.test
-        - ...
-      - description.md
-    - launguage
-      - cpp
+- problems
+  - NumberOfIslands
+    - cpp
+      - solution.cpp
+      - ...
+    - testcases
+      - TestCase1.test
+      - TestCase2.test
+      - ...
+    - description.md
+  - TwoSum
+    - ..
+- launguage
+    - cpp
 
-Just like for LeetCode you have one file where you solve the problem. For example, for the problem called TwoSum there is **problem_builds/problems/TwoSum/cpp/solution.cpp**. To add new test cases you can create a file in **problem_builds/problems/TwoSum/testcases/** directory with the extension **.test** and your solution will be automatically tested against it.
+Just like for LeetCode you have one file where you solve the problem. For example, the problem called TwoSum has **problems/TwoSum/cpp/solution.cpp**. To add a new test cases you can create a file in **problems/TwoSum/testcases/** directory with file extension **.test** and the solution will automatically be tested against it.
 
-The problem is a LeetCode problem description in the ***description.md*** file location in the directory for each problem. For example ***problem_builds/problems/TwoSum/description.md***.
+Each problem is described in the ***description.md*** file location in the problem's directory. For example ***problems/TwoSum/description.md***.
 
-The format of the .test files are as follows
+The format of the .test files are as follows:
 
 ```text
-arg1
-arg2
-expected results
+<arg1>
+<arg2>
+<expected results>
 ```
 
-Each line is either an integral type (1, 4.6 etc.), or an array of integral types. For example:
+Each line is either an integral type, a string, or an array. For example:
 
 ```text
-[1, 2, 4]
+["1", "2", "4"]
 8.0
 [0, 0]
 ```
-
-For C++ the supported types are: integral types, strings, vector of integral types.
 
 ## List of LeetCode Problems
 * TwoSum
 * LongestSubstringWithoutRepeatingCharacters
 * NumberOfIslands
 
-The problem names are automatically extracted from the folder names inside **data/problems/**.
+The problem names are automatically extracted from the **problems** folder.
 
 ## Usage
 ```text
@@ -99,14 +115,16 @@ options:
   --problem problem_name, -p problem_name
                         Name of the problem to build and test. Default: TwoSum. Use --list-problems to list all problems.
   --problem_builds_dir dir, -d dir
-                        Path to a directory with the problems. Usually ./problem_builds/ directory. Default: problem_builds.
+                        Specifies the directory with the problems. Typically, this is './problem_builds'. If not provided, the script defaults to './problem_builds' in the same directory as the executable.
+  --run-expected-tests, -r
+                        Run the expected solution. Default: False.
   --testcase testcase_name, -t testcase_name
                         Name of the testcase to run. '--testcase All' will run all testcases. Default: All.
   --verbose, -v         Print verbose output
 ```
 
 ## Note
-Curently only C++ is supported but the framework is setup such that other languages can be added. Also, the question description and the solution is yet to be worked on.
+Curently only C++ is supported but the framework is setup such that other languages can be added.
 
 ## Requirements
 This project requires the following to run:
@@ -114,6 +132,9 @@ This project requires the following to run:
 - Python
 - CMake 3.12
 - Git
+
+#### Additional Requirements for the UI
+- npm
 
 ## Contributing
 Feel free to contribute with code, test cases, or even code reviews.
