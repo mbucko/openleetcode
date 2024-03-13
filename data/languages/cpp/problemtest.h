@@ -9,7 +9,7 @@ class ProblemTest {
   public:
     explicit ProblemTest(const std::string& test_dir_name,
                          const std::string& results_file_name,
-                         const std::string& testcase_name,
+                         const std::string& testcase_filter_name,
                          const std::string& testcase_file_name);
 
     bool run() const;
@@ -17,7 +17,7 @@ class ProblemTest {
   private:
     const std::string test_dir_name_;
     const std::string results_file_name_;
-    const std::string testcase_name_;
+    const std::string testcase_filter_name_;
     const std::string testcase_file_name_;
 
     bool runTest(const std::string& testcase_file_name,

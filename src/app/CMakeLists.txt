@@ -1,3 +1,4 @@
+
 set(PYTHON_SCRIPTS
     functionextractor.py
     logger.py
@@ -6,43 +7,35 @@ set(PYTHON_SCRIPTS
     testrunner.py
 )
 
-set (DATA
-    results_validation_schema.json
-)
-
-set(WINDOWS_SCRIPTS
+set(WINDOWS_SCRIPT
     openleetcode.bat
 )
 
-set(UNIX_SCRIPTS
+set(UNIX_SCRIPT
     openleetcode.sh
 )
 
 if (WIN32)
-    foreach(WINDOWS_SCRIPT IN LISTS WINDOWS_SCRIPTS)
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${WINDOWS_SCRIPT} ${PROJECT_BUILDS_DIR}/${WINDOWS_SCRIPT} COPYONLY)
-    endforeach()
+    set(SCRIPT ${WINDOWS_SCRIPT})
 elseif (UNIX)
-    foreach(UNIX_SCRIPT IN LISTS UNIX_SCRIPTS)
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${UNIX_SCRIPT} ${PROJECT_BUILDS_DIR}/${UNIX_SCRIPT} COPYONLY)
-    endforeach()
-
-    add_custom_target(
-        make_openleetcode_executable ALL
-        DEPENDS ${PROJECT_BUILDS_DIR}/openleetcode.sh
-    )
-
-    add_custom_command(
-        TARGET make_openleetcode_executable
-        POST_BUILD
-        COMMAND chmod +x ${PROJECT_BUILDS_DIR}/openleetcode.sh
-    )
+    set(SCRIPT ${UNIX_SCRIPT})
 endif()
 
-foreach(PYTHON_SCRIPT IN LISTS PYTHON_SCRIPTS)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PYTHON_SCRIPT} ${PROJECT_BUILDS_DIR}/${PYTHON_SCRIPT} COPYONLY)
-endforeach()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+                ${CMAKE_CURRENT_BINARY_DIR}/${SCRIPT}
+                COPYONLY)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${SCRIPT}
+        DESTINATION ${PROJECT_NAME})
 
-foreach(FILE IN LISTS DATA)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${PROJECT_BUILDS_DIR}/${FILE} COPYONLY)
+add_custom_target(
+    openleetcode_script ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${SCRIPT}
+)
+
+foreach(PYTHON_SCRIPT IN LISTS PYTHON_SCRIPTS)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PYTHON_SCRIPT}
+                   ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_SCRIPT}
+                   COPYONLY)
+    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_SCRIPT}
+            DESTINATION ${PROJECT_NAME})
 endforeach()
