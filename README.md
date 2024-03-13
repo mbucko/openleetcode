@@ -26,7 +26,7 @@ The motivation behind this project is to be able to practice LeetCode problems o
 
 
 ## Screenshot
-![Screenshot](./assets/images/ui_screenshot.png)
+![Screenshot](assets/images/ui_screenshot.png)
 
 ## Build
 ### Building without UI
