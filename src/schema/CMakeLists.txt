@@ -3,5 +3,9 @@ set (DATA
 )
 
 foreach(FILE IN LISTS DATA)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${PROJECT_BUILDS_DIR}/${FILE} COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${FILE}
+                   ${CMAKE_CURRENT_BINARY_DIR}/${FILE}
+                   COPYONLY)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE}
+    DESTINATION ${PROJECT_NAME})
 endforeach()
