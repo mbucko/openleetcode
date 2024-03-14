@@ -22,14 +22,16 @@
                         "anyOf": [
                             {"type": "string"},
                             {"type": "integer"},
-                            {"type": "array"}
+                            {"type": "array"},
+                            {"type": "boolean"}
                         ]
                     },
                     "expected": {
                         "anyOf": [
                             {"type": "string"},
                             {"type": "integer"},
-                            {"type": "array"}
+                            {"type": "array"},
+                            {"type": "boolean"}
                         ]
                     },
                     "reason": {

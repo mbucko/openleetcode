@@ -2,6 +2,7 @@
 #define SOLUTIONWRAPPER_H
 
 #include "stlincludes.h"
+#include "treenode.h"
 
 using namespace std;
 

@@ -7,7 +7,11 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <queue>
 
+#include "treenode.h"
+#include "singletreenode.h"
+#include "treenode.h"
 #include "typetraits.h"
 
 void removeOuterSpaces(std::string& value) {
@@ -50,7 +54,7 @@ std::string removeQuotes(const std::string& str) {
     return removeEncapsulatedTokens(str);
 }
 
-std::vector<std::string> splitIgnoreBrackets(const std::string& str,
+std::vector<std::string> splitIgnoreBrackets(const std::string str,
                                              char delimiter) {
     std::vector<std::string> result;
     std::string token;
@@ -77,7 +81,19 @@ std::vector<std::string> splitIgnoreBrackets(const std::string& str,
 }
 
 template <typename T>
-std::enable_if_t<std::is_same_v<char, T>, T> parse(std::string& value) {
+std::enable_if_t<std::is_same_v<bool, T>, T> parse(std::string value) {
+    removeOuterSpaces(value);
+    if (value != "true" && value != "false") {
+        std::stringstream ss;
+        ss << "Error: Invalid boolean format. Must be either \"true\" or "
+              "\"false\". String: " << value;
+        throw std::runtime_error(ss.str());
+    }
+    return value == "true" ? true : false;
+}
+
+template <typename T>
+std::enable_if_t<std::is_same_v<char, T>, T> parse(std::string value) {
     removeOuterSpaces(value);
     if (value.size() != 3 || !isCharFormatOk(value)) {
         std::stringstream ss;
@@ -89,7 +105,7 @@ std::enable_if_t<std::is_same_v<char, T>, T> parse(std::string& value) {
 }
 
 template <typename T>
-std::enable_if_t<std::is_same_v<std::string, T>, T> parse(std::string& value) {
+std::enable_if_t<std::is_same_v<std::string, T>, T> parse(std::string value) {
     removeOuterSpaces(value);
     if (!isStringFormatOk(value)) {
         std::stringstream ss;
@@ -101,17 +117,34 @@ std::enable_if_t<std::is_same_v<std::string, T>, T> parse(std::string& value) {
 }
 
 template <typename T>
-std::enable_if_t<std::is_integral_v<T>, T> parse(const std::string& value) {
-    std::string valueCopy = value;
-    removeOuterSpaces(valueCopy);
+std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<bool, T>, T>
+    parse(std::string value) {
+    removeOuterSpaces(value);
     T ret{};
-    std::stringstream ss(valueCopy);
+    std::stringstream ss(value);
     ss >> ret;
     return ret;
 }
 
 template <typename T>
-std::enable_if_t<is_vector_type<T>::value, T> parse(auto&& value) {
+std::enable_if_t<std::is_same_v<SingleTreeNode*, T>, T> parse(
+    std::string value) {
+    if (value.empty()) {
+        std::stringstream ss;
+        ss << "Error: Invalid TreeNode value. Value: " << value;
+        throw std::runtime_error(ss.str());
+    }
+
+    if (value == "null") {
+        return nullptr;
+    }
+
+    return new SingleTreeNode(parse<int>(std::move(value)));
+
+}
+
+template <typename T>
+std::enable_if_t<is_vector_type<T>::value, T> parse(std::string value) {
     using element_type = typename T::value_type;
     removeOuterSpaces(value);
     T vec;
@@ -123,10 +156,47 @@ std::enable_if_t<is_vector_type<T>::value, T> parse(auto&& value) {
 
     std::vector<std::string> tokens =
         splitIgnoreBrackets(removeBrackets(value), ',');
-    for (std::string& token : tokens) {
-        vec.push_back(parse<element_type>(token));
+    for (auto&& token : tokens) {
+        vec.push_back(parse<element_type>(std::move(token)));
     }
     return vec;
+}
+
+TreeNode* convertToTree(const std::vector<SingleTreeNode*>& nodes) {
+    if (nodes.empty() || nodes[0] == nullptr) {
+        return nullptr;
+    }
+
+    SingleTreeNode* root = static_cast<SingleTreeNode*>(nodes[0]);
+    std::queue<TreeNode*> queue;
+    queue.push(root);
+
+    size_t i = 1;
+    while (!queue.empty() && i < nodes.size()) {
+        TreeNode* current = queue.front();
+        queue.pop();
+
+        if (i < nodes.size() && nodes[i] != nullptr) {
+            current->left = static_cast<SingleTreeNode*>(nodes[i]);
+            queue.push(static_cast<SingleTreeNode*>(nodes[i]));
+        }
+        ++i;
+
+        if (i < nodes.size() && nodes[i] != nullptr) {
+            current->right = static_cast<SingleTreeNode*>(nodes[i]);
+            queue.push(static_cast<SingleTreeNode*>(nodes[i]));
+        }
+        ++i;
+    }
+
+    return root;
+}
+
+template <typename T>
+std::enable_if_t<std::is_same_v<TreeNode*, T>, T> parse(std::string value) {
+    const auto vec = parse<std::vector<SingleTreeNode*>>(std::move(value));
+
+    return convertToTree(vec);
 }
 
 #endif // PARSER_H
