@@ -4,9 +4,14 @@ Welcome to the OpenLeetCode Project! This guide will describe how to add support
 
 ## Table of Contents
 
-1. [Adding support for a new language](#adding-support-for-a-new-language)
-2. [Building and Running the Testcases](#building-and-running-the-testcases)
-3. [Schema Validation](#schema-validation)
+- [Getting Started](#getting-started)
+	- [Table of Contents](#table-of-contents)
+	- [Adding support for a new language](#adding-support-for-a-new-language)
+	- [Building and Running the Testcases](#building-and-running-the-testcases)
+			- [Setup](#setup)
+			- [Build and Run](#build-and-run)
+			- [The Results](#the-results)
+	- [Schema Validation](#schema-validation)
 
 ## Adding support for a new language
 
