@@ -9,13 +9,18 @@ The motivation behind this project is to be able to practice LeetCode problems o
 - [Table of Content](#table-of-content)
 - [Screenshot](#screenshot)
 - [Build](#build)
-	- [Building without UI](#building-without-ui)
-	- [Building with UI](#building-with-ui)
+	- [Windows](#windows)
+		- [Building without UI](#building-without-ui)
+		- [Building with UI](#building-with-ui)
+	- [Unix](#unix)
+		- [Building without UI](#building-without-ui-1)
+		- [Building with UI](#building-with-ui-1)
 - [Run](#run)
-	- [CLI - Windows Terminal](#cli---windows-terminal)
-	- [CLI - Unix](#cli---unix)
-	- [UI - Windows Terminal](#ui---windows-terminal)
-	- [UI - Unix](#ui---unix)
+	- [Windows](#windows-1)
+		- [CLI](#cli)
+		- [UI](#ui)
+		- [CLI](#cli-1)
+		- [UI](#ui-1)
 - [How To Use](#how-to-use)
 - [List of LeetCode Problems](#list-of-leetcode-problems)
 - [Usage](#usage)
@@ -29,32 +34,47 @@ The motivation behind this project is to be able to practice LeetCode problems o
 ![Screenshot](assets/images/ui_screenshot.PNG)
 
 ## Build
-### Building without UI
+### Windows
+#### Building without UI
 ```cmd
-cmake -B build -DCMAKE_INSTALL_PREFIX=install
-cmake --build build
-cmake --install build --prefix=install
+git clone https://github.com/mbucko/openleetcode
+cd openleetcode
+.\install --prefix=./install
 ```
-### Building with UI
+#### Building with UI
 ```cmd
-cmake -B build -DCMAKE_INSTALL_PREFIX=install -DBUILD_UI=ON
-cmake --build build
-cmake --install build --prefix=install
+git clone https://github.com/mbucko/openleetcode
+cd openleetcode
+.\install --prefix=./install --enable_ui
+```
+### Unix
+#### Building without UI
+```bash
+git clone https://github.com/mbucko/openleetcode
+cd openleetcode
+.\install.sh --prefix=./install
+```
+#### Building with UI
+```bash
+git clone https://github.com/mbucko/openleetcode
+cd openleetcode
+.\install.sh --prefix=./install --enable_ui
 ```
 ## Run
-### CLI - Windows Terminal
+### Windows
+#### CLI
 ```cmd
 ./problem_builds/openleetcode --language cpp --problem TwoSum
 ```
-### CLI - Unix
+#### UI
+```bash
+./problem_builds/openleetcodeui
+```
+#### CLI
 ```bash
 ./problem_builds/openleetcode.sh --language cpp --problem TwoSum
 ```
-### UI - Windows Terminal
-```cmd
-./problem_builds/openleetcodeui
-```
-### UI - Unix
+#### UI
 ```bash
 ./problem_builds/openleetcodeui.sh
 ```
