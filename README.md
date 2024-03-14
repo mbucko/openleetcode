@@ -90,13 +90,19 @@ The format of the .test files are as follows:
 <expected results>
 ```
 
-Each line is either an integral type, a string, or an array. For example:
+The supported types are: integral type, a string, TreeNode structure, boolean or an array. For example:
 
 ```text
 ["1", "2", "4"]
 8.0
 [0, 0]
 ```
+
+A ThreeNode structure is represented in an array-based structure. For example an array representation `[1, 2, null, null, 3]` results to the following structure:
+
+      1
+     / \
+    2   3
 
 ## List of LeetCode Problems
 * TwoSum
