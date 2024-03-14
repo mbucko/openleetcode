@@ -35,7 +35,8 @@ std::string to_lower(std::string s) {
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << " <input file> <output file> "
+        std::cerr << "Usage: " << argv[0]
+                  << " <testcase directory> <results output file> "
                   << "<testcase name>" << std::endl;
         return 1;
     }
