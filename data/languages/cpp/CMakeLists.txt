@@ -46,12 +46,14 @@ set(HEADER_FILES
     problemtest.h
     solutionwrapper.h
     stlincludes.h
+    treenode.h
     typetraits.h
 )
 
 set(SOURCE_FILES
     main.cpp
     problemtest.cpp
+    treenode.cpp
 )
 
 target_sources(solution_cpp PRIVATE
