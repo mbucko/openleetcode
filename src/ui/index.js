@@ -30,6 +30,12 @@ function saveSolution(language, content) {
 
     const userSolutionFilename =
         directoryManager.getUserSolutionFilename(previousProblem);
+
+    if (file.existsSync(userSolutionFilename) &&
+        file.readFileSync(userSolutionFilename, 'utf8') === content) {
+            console.log("No changes to save");
+        return;
+    }
     console.log("Saving problem " + previousProblem + " to " +
         userSolutionFilename);
     file.writeFileSync(userSolutionFilename, content);
