@@ -20,12 +20,13 @@ def naturalSort(s):
     return [int(text) if text.isdigit() else text.lower()
             for text in re.split('([0-9]+)', s)]
 
-def run(command):
+def run(command, directory):
     logger.log("Running command: " + command)
     result = subprocess.run(command,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT,
-                        shell=True)
+                        shell=True,
+                        cwd=directory)
     logger.log(result.stdout.decode('utf-8'))
     if result.returncode != 0:
         logger.log(f"Error running the command: {command}")
@@ -183,10 +184,16 @@ def main():
     
     solution_file_name = os.path.join(src_dir, "solution.cpp")
     solution_function_file_name = os.path.join(src_dir, "solutionfunction.h")
-    ret = functionextractor.get_function(solution_file_name,
-                                         solution_function_file_name)
-    logger.log(f"Extracted function name: {ret}")
-    logger.log(f"Writing the function name to {solution_function_file_name}")
+    if not os.path.isfile(solution_function_file_name):
+        ret = functionextractor.get_function(solution_file_name,
+                                            solution_function_file_name)
+        logger.log(f"Extracted function name: {ret}")
+        logger.log(f"Writing the function name to {solution_function_file_name}")
+
+        if not ret:
+            print(logger.red(f"Could not extract the function name from "
+                            f"{solution_file_name}."))
+            sys.exit(1)
 
     validation_schema_file = os.path.abspath(
         os.path.join(openleetcode_dir, VALIDATION_SCHEMA_FILE_NAME))
@@ -204,20 +211,19 @@ def main():
             sys.exit(1)
         resultsvalidator.set_schema(schema)
 
-    if not ret:
-        print(logger.red(f"Could not extract the function name from "
-                         f"{solution_file_name}."))
-        sys.exit(1)
+    if not os.path.isfile(os.path.join(build_dir, "CMakeCache.txt")):
+        print("CMakeCache.txt does not exist. Running CMake to configure the ")
+        if run(f"cmake -B {build_dir}", src_dir) != 0:
+            print(logger.red(f"CMake failed!"))
+            sys.exit(1)
+    else:
+        print("CMakeCache.txt exists. Skipping CMake configuration.")
 
-    if run(f"cmake -B {build_dir} -S {src_dir}") != 0:
-        print(logger.red(f"CMake failed!"))
-        sys.exit(1)
-
-    if run(f"cmake --build {build_dir} --config Release") != 0:
+    if run(f"cmake --build . --config Release -j", build_dir) != 0:
         print(logger.red("Build failed!"))
         sys.exit(1)
 
-    if run(f"cmake --install {build_dir}") != 0:
+    if run(f"cmake --install .", build_dir) != 0:
         print(logger.red("Cmake install failed!"))
         sys.exit(1)
 
@@ -253,7 +259,6 @@ def main():
 
     output_file_dir = os.path.abspath(os.path.join(TESTCAST_OUTPUT_DIR))
 
-    # Run the tests
     ret, error_message = testrunner.runTests(exe_file,
                                              testcases_dir,
                                              output_file_dir,
