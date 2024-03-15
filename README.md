@@ -128,6 +128,7 @@ A ThreeNode structure is represented in an array-based structure. For example an
 * TwoSum
 * LongestSubstringWithoutRepeatingCharacters
 * NumberOfIslands
+* CheckCompletenessOfABinaryTree
 
 The problem names are automatically extracted from the **problems** folder.
 
