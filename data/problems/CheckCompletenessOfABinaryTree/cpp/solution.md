@@ -33,7 +33,7 @@ public:
 ```
 
 ### Complexity Analysis
-* Time complexity :
+* Time complexity : **O(N)**.<br>
 
-* Space complexity :
+* Space complexity : **O(log(N))**.<br>
 
