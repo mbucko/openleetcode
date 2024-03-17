@@ -60,14 +60,20 @@ def runTests(exec_filename,
                                         timeout=PROBLEM_LTE_S,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
-
     except subprocess.TimeoutExpired:
         return 1, f"Time Limit Exceeded"
     except Exception as e:
         return 1, f"Error running the test, error={e}"
     
     if not os.path.isfile(test_restults_filename):
-        return 1, f"The file {test_restults_filename} does not exist."
+        jsonResultsObj = {
+            "status": "Failed",
+            "stderr": subprocess_obj.stderr.decode('utf-8'),
+            "stdout": subprocess_obj.stdout.decode('utf-8'),
+            "errorcode": hex(subprocess_obj.returncode)
+        }
+        with open(test_restults_filename, 'w') as f:
+            json.dump(jsonResultsObj, f, indent=4)
     
     # read test_restults_filename into a json object
     with open(test_restults_filename, 'r') as f:

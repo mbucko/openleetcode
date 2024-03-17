@@ -213,17 +213,17 @@ def main():
 
     if not os.path.isfile(os.path.join(build_dir, "CMakeCache.txt")):
         print("CMakeCache.txt does not exist. Running CMake to configure the ")
-        if run(f"cmake -B {build_dir}", src_dir) != 0:
+        if run(f"cmake -B {build_dir}  -DCMAKE_BUILD_TYPE=Debug", src_dir) != 0:
             print(logger.red(f"CMake failed!"))
             sys.exit(1)
     else:
         print("CMakeCache.txt exists. Skipping CMake configuration.")
 
-    if run(f"cmake --build . --config Release -j", build_dir) != 0:
+    if run(f"cmake --build . --config Debug -j", build_dir) != 0:
         print(logger.red("Build failed!"))
         sys.exit(1)
 
-    if run(f"cmake --install .", build_dir) != 0:
+    if run(f"cmake --install . --config Debug -v", build_dir) != 0:
         print(logger.red("Cmake install failed!"))
         sys.exit(1)
 

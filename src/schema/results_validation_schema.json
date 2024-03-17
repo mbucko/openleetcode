@@ -96,15 +96,31 @@
             "$ref": "#/definitions/testcase_filter_name_schema"
         }
     },
-    "required": ["duration_ms", "status", "tests", "stderr"],
-    "if": {
-        "not": {
-            "properties": {
-            "testcase_filter_name": { "pattern": "^All$", "flags": "i" }
+    "required": ["status"],
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "errorcode": {}
+                },
+                "required": ["errorcode"]
+            },
+            "then": {
+                "required": ["stdout", "stderr"]
+            },
+            "else": {
+                "required": ["duration_ms", "tests", "stderr"],
+                "if": {
+                    "not": {
+                        "properties": {
+                            "testcase_filter_name": { "pattern": "^All$", "flags": "i" }
+                        }
+                    }
+                },
+                "then": {
+                    "required": ["stdout"]
+                }
             }
         }
-    },
-    "then": {
-        "required": ["stdout"]
-    }
+    ]
 }

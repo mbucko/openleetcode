@@ -76,11 +76,9 @@ target_link_libraries(solution_expected_cpp PRIVATE nlohmann_json::nlohmann_json
 set(CMAKE_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 install(TARGETS solution_cpp
-    CONFIGURATIONS Release
     RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}
 )
 
 install(TARGETS solution_expected_cpp
-    CONFIGURATIONS Release
     RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}
 )
