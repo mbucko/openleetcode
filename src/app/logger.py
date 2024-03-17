@@ -17,6 +17,7 @@ def log(message: str):
         print(message)
 
 def logResults(results):
-    #TODO: Print indivitual test status for a failed run?
+    duration = ("Unknown" if "duration_ms" not in results
+                 else str(results["duration_ms"]) + "ms")
     print("Status: " + str(results["status"]) + "\n" +
-          "Duration: " + str(results["duration_ms"]) + "ms")
+          "Duration: " + duration)

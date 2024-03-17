@@ -41,13 +41,17 @@ function saveSolution(language, content) {
     file.writeFileSync(userSolutionFilename, content);
 }
 
-function parseStdout(stdout) {
+function parseResultsFileFromStdout(stdout) {
     // stdout:
     // LongestSubstringWithoutRepeatingCharacters for testcase All in language cpp
     // Results written to /path\to/openleetcode/src/ui/testcase_output/<testname><datetime>.results
     // Status: <status>
     // Duration: <duration>ms
-    return stdout.match(/Results written to (.*\.results)/)[1];
+    match = stdout.match(/Results written to (.*\.results)/);
+    if (!match || match.length === 0) {
+        return null;
+    }
+    return match[1];
 }
 
 function parseBuildError(stdout) {
@@ -156,31 +160,36 @@ function run(callback, testcase = 'All', expected = false) {
 
     var resultsFilename;
     exec(command, (error, stdout, stderr) => {
-        if (error) {
+        var element = document.getElementById("compilation-content");
+        
+        element.textContent = "";
+        resultsFilename = parseResultsFileFromStdout(stdout);
+        if (!resultsFilename || !file.existsSync(resultsFilename)) {
+            console.log("Setting error");
             console.log("Error running the command, error: " + error +
                         ", stderr: " + stderr + ", stdout: " + stdout);
-            var element = document.getElementById("compilation-content");
-            element.textContent = parseBuildError(stdout + "\n" + error);
+            element.textContent = parseBuildError(stdout);
             document.getElementById('tab-compilation-button').click();
             return;
         }
-        var element = document.getElementById("compilation-content");
-        element.textContent = "";
-        
-        resultsFilename = parseStdout(stdout);
-        if (!resultsFilename) {
-            throw new Error("Could not parse results filename from stdout: " +
-                            "${stdout}");
-        }
 
-        if (!file.existsSync(resultsFilename)) {
-            throw new Error(`Results file does not exist: ${resultsFilename}`);
-        }
-    
         const results = file.readFileSync(resultsFilename, 'utf8');
         console.log(results);
         const resultsJson = JSON.parse(results);
-        callback(resultsJson);
+        errorcode = resultsJson["errorcode"];
+        console.log("errorcode: " + errorcode);
+        if (errorcode != undefined && errorcode !== 0) {
+            html = "<p>Errorcode: " + resultsJson.errorcode + "</p>";
+            html += "<p>Stdout: " + resultsJson.stdout + "</p>";
+            html += "<p>Stderr: " + resultsJson.stderr + "</p>";
+
+            element.innerHTML = html;
+            document.getElementById('tab-compilation-button').click();
+            return;
+        } else {
+            console.log("Setting results");
+            callback(resultsJson);
+        }
     });
 }
 
