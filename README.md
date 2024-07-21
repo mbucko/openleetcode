@@ -52,31 +52,36 @@ cd openleetcode
 ```bash
 git clone https://github.com/mbucko/openleetcode
 cd openleetcode
-.\install.sh --prefix=./install
+./install.sh --prefix=./install
 ```
 #### Building with UI
 ```bash
 git clone https://github.com/mbucko/openleetcode
 cd openleetcode
-.\install.sh --prefix=./install --enable_ui
+./install.sh --prefix=./install --enable_ui
 ```
 ## Run
 ### Windows
 #### CLI
 ```cmd
-./problem_builds/openleetcode --language cpp --problem TwoSum
+dir install/OpenLeetCode
+./openleetcode --language cpp --problem TwoSum
 ```
 #### UI
 ```bash
-./problem_builds/openleetcodeui
+dir install/OpenLeetCode
+./openleetcodeui
 ```
+### Unix
 #### CLI
 ```bash
-./problem_builds/openleetcode.sh --language cpp --problem TwoSum
+cd install/OpenLeetCode
+./openleetcode.sh --language cpp --problem TwoSum
 ```
 #### UI
 ```bash
-./problem_builds/openleetcodeui.sh
+cd install/OpenLeetCode
+./openleetcodeui.sh
 ```
 NOTE: UI for unix is yet to be tested.
 
