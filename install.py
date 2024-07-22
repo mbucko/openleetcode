@@ -4,7 +4,6 @@ import os
 import shutil
 import subprocess
 
-from distutils import dir_util
 
 if os.name == "nt":
     default_prefix = "C:\\Program Files"
@@ -79,7 +78,7 @@ def installOpenLeetCode(src_dir, install_dir):
     if not os.path.exists(data_dir):
         raise FileNotFoundError(f"No data directory found at {data_dir}")
 
-    dir_util.copy_tree(data_dir, install_dir)
+    shutil.copytree(data_dir, install_dir, dirs_exist_ok=True)
 
     schema_file = os.path.join(src_dir, "src", "schema", "results_validation_schema.json")
     if not os.path.exists(schema_file):
