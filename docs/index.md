@@ -15,13 +15,12 @@ Welcome to the OpenLeetCode Project! This guide will describe how to add support
 
 ## Adding support for a new language
 
-The support for each language should be self contained within its own folder, located in ``problems_build/problems/language/<language>``. For example, for C++ there is a folder ``cpp`` as shown below:
+The support for each language should be self contained within its own folder, located in ``problems_build/problems/language/<language>``. For example, the repository currently ships ``cpp`` and ``python``:
 
 - problem_builds
   - problems
     - launguage
       - cpp
-      - java
       - python
 
 Any newly added language must adhere to the guidelines in the following sections.
@@ -29,15 +28,15 @@ Any newly added language must adhere to the guidelines in the following sections
 ## Building and Running the Testcases
 
 #### Setup
-When ``openleetcode`` is executed, two of the specified parameters are ``problem`` and ``language``. In this example, let's assume the problem is ``TwoSum`` and the language is ``Cpp``.
+When ``openleetcode`` is executed, two of the specified parameters are ``problem`` and ``language``. In the default workflow, let's assume the problem is ``TwoSum`` and the language is ``cpp``.
 
-``openleetcode`` copies all files from ``problems_build/language/cpp`` into the  ``problems_build/problems/TwoSum/cpp``, including source files and CMake files. The folder already contains ``solution.cpp`` in the case of C++ laguage.
+``openleetcode`` copies all files from ``problems_build/language/cpp`` into the ``problems_build/problems/TwoSum/cpp`` directory when they are missing. In the current project, C++ is the primary end-to-end path and is also the language used by the Electron UI.
 
 #### Build and Run
-Once the copying is complete, CMake is executed to build the binary and subsequently run it against the specified test cases from ``problems_build/problems/TwoSum/testcases.``.
+Once the copying is complete, the selected language runtime is executed against the specified test cases from ``problems_build/problems/TwoSum/testcases``. For C++, this means configuring and building with CMake. Python is also available through the CLI, where the shared Python runner loads ``solution.py`` or ``solution_expected.py`` and writes the same ``.results`` format, but it is not yet the default UI path.
 
 #### The Results
-The results of this run will be stored inside ``problems_build/problems/TwoSum/cpp/testcase_output/TwoSum-<datetime>.results``.
+The results of this run will be stored inside ``testcase_output/TwoSum-<datetime>.results``.
 
 
 ## Schema Validation
