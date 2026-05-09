@@ -2,6 +2,7 @@ import importlib.util
 import inspect
 import json
 import os
+import re
 import sys
 import time
 
@@ -207,9 +208,10 @@ def get_test_files(test_dir_name, testcase_name):
             test_files.append(os.path.join(test_dir_name, entry))
 
     def sort_key(path):
-        name = os.path.basename(path)
-        digits = "".join(char for char in name if char.isdigit())
-        return (name.rstrip("0123456789"), int(digits) if digits else -1, name)
+        return [
+            int(text) if text.isdigit() else text.lower()
+            for text in re.split(r"([0-9]+)", os.path.basename(path))
+        ]
 
     return sorted(test_files, key=sort_key)
 
