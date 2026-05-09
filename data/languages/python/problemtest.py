@@ -14,71 +14,6 @@ from treenode import TreeNode
 ANY_VALUE = "*"
 
 
-def split_top_level(value, delimiter):
-    tokens = []
-    token = []
-    depth = 0
-    in_string = False
-    escape = False
-
-    for char in value:
-        if escape:
-            token.append(char)
-            escape = False
-            continue
-
-        if char == "\\" and in_string:
-            token.append(char)
-            escape = True
-            continue
-
-        if char == "\"":
-            in_string = not in_string
-            token.append(char)
-            continue
-
-        if not in_string:
-            if char == "[":
-                depth += 1
-            elif char == "]":
-                depth -= 1
-            elif char == delimiter and depth == 0:
-                tokens.append("".join(token).strip())
-                token = []
-                continue
-
-        token.append(char)
-
-    if token or value == "":
-        tokens.append("".join(token).strip())
-    return [token for token in tokens if token != ""]
-
-
-def parse_bool(value):
-    if value == "true":
-        return True
-    if value == "false":
-        return False
-    raise ValueError(f"Invalid boolean format: {value}")
-
-
-def parse_string(value):
-    if len(value) < 2 or value[0] != "\"" or value[-1] != "\"":
-        raise ValueError(f"Invalid string format: {value}")
-    return bytes(value[1:-1], "utf-8").decode("unicode_escape")
-
-
-def parse_array(value, element_type):
-    stripped = value.strip()
-    if len(stripped) < 2 or stripped[0] != "[" or stripped[-1] != "]":
-        raise ValueError(f"Invalid array format: {value}")
-    inner = stripped[1:-1].strip()
-    if inner == "":
-        return []
-    return [parse_typed_value(token, element_type)
-            for token in split_top_level(inner, ",")]
-
-
 def build_tree(values):
     if not values or values[0] is None:
         return None
@@ -103,50 +38,24 @@ def build_tree(values):
     return root
 
 
-def parse_tree(value):
-    stripped = value.strip()
-    if stripped == "null":
-        return None
-    if len(stripped) < 2 or stripped[0] != "[" or stripped[-1] != "]":
-        raise ValueError(f"Invalid tree format: {value}")
-
-    inner = stripped[1:-1].strip()
-    if inner == "":
-        return None
-
-    values = []
-    for token in split_top_level(inner, ","):
-        token = token.strip()
-        if token == "null":
-            values.append(None)
-        else:
-            values.append(int(token))
-    return build_tree(values)
-
-
 def parse_typed_value(value, annotation):
-    value = value.strip()
-
     if annotation is inspect._empty:
         raise ValueError("All Python solution parameters and returns need type hints.")
+    return coerce_value(json.loads(value), annotation)
 
-    if annotation is bool:
-        return parse_bool(value)
-    if annotation is int:
-        return int(value)
-    if annotation is str:
-        return parse_string(value)
+
+def coerce_value(raw, annotation):
     if annotation is TreeNode:
-        return parse_tree(value)
+        return build_tree(raw) if isinstance(raw, list) else None
 
     origin = get_origin(annotation)
     args = get_args(annotation)
     if origin is list:
         if len(args) != 1:
             raise ValueError(f"Unsupported list annotation: {annotation}")
-        return parse_array(value, args[0])
+        return [coerce_value(item, args[0]) for item in raw]
 
-    raise ValueError(f"Unsupported annotation: {annotation}")
+    return raw
 
 
 def serialize_tree(root):
@@ -320,9 +229,8 @@ def main():
         for testcase_file in test_files:
             test_json = {}
             tests_json.append(test_json)
-            success = run_test(solution_class, testcase_file, test_json)
-            if not success:
-                break
+            if not run_test(solution_class, testcase_file, test_json):
+                success = False
     except Exception as error:
         tests_json.append({
             "status": "Failed",

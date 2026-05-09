@@ -81,6 +81,7 @@ cd install/OpenLeetCode
 Python is also supported in the CLI, but C++ remains the default documented path because the project is fully implemented end to end around it:
 ```bash
 cd install/OpenLeetCode
+uv sync   # or: pip install jsonschema
 ./openleetcode.sh --language python --problem TwoSum
 ```
 #### UI
