@@ -54,7 +54,7 @@ def get_validation_schema_file(openleetcode_dir):
 
     return candidate_paths[0]
 
-def build_cpp(build_dir, src_dir):
+def build_cpp(build_dir, src_dir, run_expected_tests):
     if not os.path.isfile(os.path.join(build_dir, "CMakeCache.txt")):
         print("CMakeCache.txt does not exist. Running CMake to configure the ")
         if run(f"cmake -B {build_dir}  -DCMAKE_BUILD_TYPE=Debug", src_dir) != 0:
@@ -78,11 +78,7 @@ def build_cpp(build_dir, src_dir):
                           "the problem_builds_dir and problem arguments."))
         sys.exit(1)
 
-    exe_file_name = (
-        "solution_expected_"
-        if args.run_expected_tests
-        else "solution_"
-    )
+    exe_file_name = "solution_expected_" if run_expected_tests else "solution_"
 
     exe_file = os.path.abspath(os.path.join(
         bin_dir, f"{exe_file_name}cpp" + getExeExtension()))
@@ -94,20 +90,26 @@ def build_cpp(build_dir, src_dir):
 
     return [exe_file], bin_dir, None
 
-def get_python_runner(src_dir):
-    runner_file = os.path.join(src_dir, "problemtest.py")
+def get_python_runner(src_dir, src_template_dir, run_expected_tests):
+    runner_file = os.path.join(src_template_dir, "problemtest.py")
     if not os.path.isfile(runner_file):
         print(logger.red(f"The python runner file {runner_file} does not exist."))
         sys.exit(1)
 
     env = os.environ.copy()
-    if args.run_expected_tests:
+    python_path = env.get("PYTHONPATH", "")
+    if python_path:
+        env["PYTHONPATH"] = src_template_dir + os.pathsep + python_path
+    else:
+        env["PYTHONPATH"] = src_template_dir
+
+    if run_expected_tests:
         env["OPENLEETCODE_EXPECTED"] = "1"
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
 
     return [sys.executable, runner_file], src_dir, env
 
 def main():
-    global args
     parser = argparse.ArgumentParser(
         description="OpenLeetCode problem builder. This script builds and "
                     "tests a LeetCode-like problems locally. Currently, it "
@@ -240,16 +242,20 @@ def main():
     logger.log(f"Template source directory: {src_template_dir}")
     logger.log(f"Testcases directory: {testcases_dir}")
 
-    # Copy the template source files to the problem directory if they don't
-    # already exist
-    always_copy_files = set()
+    # Copy starter files only when they are missing. Python runtime helpers
+    # run from the language template directory instead of being copied here.
+    skip_copy_files = set()
     if args.language == "python":
-        always_copy_files = {"problemtest.py", "treenode.py"}
+        skip_copy_files = {"problemtest.py", "treenode.py"}
 
     for file in os.listdir(src_template_dir):
+        if file in skip_copy_files:
+            continue
         src_file = os.path.join(src_template_dir, file)
+        if not os.path.isfile(src_file):
+            continue
         dst_file = os.path.join(src_dir, file)
-        if file in always_copy_files or not os.path.isfile(dst_file):
+        if not os.path.isfile(dst_file):
             logger.log(f"Copying {src_file} to {dst_file}")
             shutil.copy(src_file, dst_file)
     
@@ -283,9 +289,11 @@ def main():
         resultsvalidator.set_schema(schema)
 
     if args.language == "cpp":
-        exec_command, exec_cwd, exec_env = build_cpp(build_dir, src_dir)
+        exec_command, exec_cwd, exec_env = build_cpp(
+            build_dir, src_dir, args.run_expected_tests)
     elif args.language == "python":
-        exec_command, exec_cwd, exec_env = get_python_runner(src_dir)
+        exec_command, exec_cwd, exec_env = get_python_runner(
+            src_dir, src_template_dir, args.run_expected_tests)
     else:
         print(logger.red(f"Unsupported language: {args.language}"))
         sys.exit(1)
