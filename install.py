@@ -85,6 +85,11 @@ def installOpenLeetCode(src_dir, install_dir):
         raise FileNotFoundError(f"No schema file found at {schema_file}")
     shutil.copy(schema_file, install_dir)
 
+    pyproject_file = os.path.join(src_dir, "pyproject.toml")
+    if not os.path.exists(pyproject_file):
+        raise FileNotFoundError(f"No file found at {pyproject_file}")
+    shutil.copy(pyproject_file, install_dir)
+
     if os.name == "nt":
         script = "openleetcode.bat"
     elif os.name == "posix":

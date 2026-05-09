@@ -15,6 +15,7 @@ import resultsvalidator
 
 TESTCAST_OUTPUT_DIR = "testcase_output"
 VALIDATION_SCHEMA_FILE_NAME = "results_validation_schema.json"
+SUPPORTED_LANGUAGES = ["cpp", "python"]
 
 def naturalSort(s):
     return [int(text) if text.isdigit() else text.lower()
@@ -40,15 +41,83 @@ def getExeExtension():
     else:
         return ""
 
+def get_validation_schema_file(openleetcode_dir):
+    candidate_paths = [
+        os.path.abspath(os.path.join(openleetcode_dir, VALIDATION_SCHEMA_FILE_NAME)),
+        os.path.abspath(os.path.join(openleetcode_dir, "..", "schema",
+                                     VALIDATION_SCHEMA_FILE_NAME)),
+    ]
+
+    for candidate in candidate_paths:
+        if os.path.isfile(candidate):
+            return candidate
+
+    return candidate_paths[0]
+
+def build_cpp(build_dir, src_dir, run_expected_tests):
+    if not os.path.isfile(os.path.join(build_dir, "CMakeCache.txt")):
+        print("CMakeCache.txt does not exist. Running CMake to configure the ")
+        if run(f"cmake -B {build_dir}  -DCMAKE_BUILD_TYPE=Debug", src_dir) != 0:
+            print(logger.red(f"CMake failed!"))
+            sys.exit(1)
+    else:
+        print("CMakeCache.txt exists. Skipping CMake configuration.")
+
+    if run(f"cmake --build . --config Debug -j", build_dir) != 0:
+        print(logger.red("Build failed!"))
+        sys.exit(1)
+
+    if run(f"cmake --install . --config Debug -v", build_dir) != 0:
+        print(logger.red("Cmake install failed!"))
+        sys.exit(1)
+
+    bin_dir = os.path.abspath(os.path.join(src_dir, "bin"))
+
+    if not os.path.isdir(bin_dir):
+        print(logger.red(f"The bin directory {bin_dir} does not exist. Check "
+                          "the problem_builds_dir and problem arguments."))
+        sys.exit(1)
+
+    exe_file_name = "solution_expected_" if run_expected_tests else "solution_"
+
+    exe_file = os.path.abspath(os.path.join(
+        bin_dir, f"{exe_file_name}cpp" + getExeExtension()))
+
+    if not os.path.isfile(exe_file):
+        print(logger.red(f"The file {exe_file} does not exist. Check the "
+                         f"problem_builds_dir and problem arguments."))
+        sys.exit(1)
+
+    return [exe_file], bin_dir, None
+
+def get_python_runner(src_dir, src_template_dir, run_expected_tests):
+    runner_file = os.path.join(src_template_dir, "problemtest.py")
+    if not os.path.isfile(runner_file):
+        print(logger.red(f"The python runner file {runner_file} does not exist."))
+        sys.exit(1)
+
+    env = os.environ.copy()
+    python_path = env.get("PYTHONPATH", "")
+    if python_path:
+        env["PYTHONPATH"] = src_template_dir + os.pathsep + python_path
+    else:
+        env["PYTHONPATH"] = src_template_dir
+
+    if run_expected_tests:
+        env["OPENLEETCODE_EXPECTED"] = "1"
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+
+    return [sys.executable, runner_file], src_dir, env
+
 def main():
     parser = argparse.ArgumentParser(
         description="OpenLeetCode problem builder. This script builds and "
                     "tests a LeetCode-like problems locally. Currently, it "
-                    "only supports C++ language, but it can be extended to "
-                    "support other languages.")
+                    "supports the C++ and Python languages, but it can be "
+                    "extended to support other languages.")
     parser.add_argument(
         "--language", "-l",
-        choices=['cpp'],
+        choices=SUPPORTED_LANGUAGES,
         default="cpp",
         help="The programming language.")
     parser.add_argument(
@@ -173,30 +242,38 @@ def main():
     logger.log(f"Template source directory: {src_template_dir}")
     logger.log(f"Testcases directory: {testcases_dir}")
 
-    # Copy the template source files to the problem directory if they don't
-    # already exist
+    # Copy starter files only when they are missing. Python runtime helpers
+    # run from the language template directory instead of being copied here.
+    skip_copy_files = set()
+    if args.language == "python":
+        skip_copy_files = {"problemtest.py", "treenode.py"}
+
     for file in os.listdir(src_template_dir):
+        if file in skip_copy_files:
+            continue
         src_file = os.path.join(src_template_dir, file)
+        if not os.path.isfile(src_file):
+            continue
         dst_file = os.path.join(src_dir, file)
         if not os.path.isfile(dst_file):
             logger.log(f"Copying {src_file} to {dst_file}")
             shutil.copy(src_file, dst_file)
     
-    solution_file_name = os.path.join(src_dir, "solution.cpp")
-    solution_function_file_name = os.path.join(src_dir, "solutionfunction.h")
-    if not os.path.isfile(solution_function_file_name):
-        ret = functionextractor.get_function(solution_file_name,
-                                            solution_function_file_name)
-        logger.log(f"Extracted function name: {ret}")
-        logger.log(f"Writing the function name to {solution_function_file_name}")
+    if args.language == "cpp":
+        solution_file_name = os.path.join(src_dir, "solution.cpp")
+        solution_function_file_name = os.path.join(src_dir, "solutionfunction.h")
+        if not os.path.isfile(solution_function_file_name):
+            ret = functionextractor.get_function(solution_file_name,
+                                                solution_function_file_name)
+            logger.log(f"Extracted function name: {ret}")
+            logger.log(f"Writing the function name to {solution_function_file_name}")
 
-        if not ret:
-            print(logger.red(f"Could not extract the function name from "
-                            f"{solution_file_name}."))
-            sys.exit(1)
+            if not ret:
+                print(logger.red(f"Could not extract the function name from "
+                                f"{solution_file_name}."))
+                sys.exit(1)
 
-    validation_schema_file = os.path.abspath(
-        os.path.join(openleetcode_dir, VALIDATION_SCHEMA_FILE_NAME))
+    validation_schema_file = get_validation_schema_file(openleetcode_dir)
     if not os.path.isfile(validation_schema_file):
         print(logger.red(f"The validation schema file {validation_schema_file} "
                          f"does not exist."))
@@ -211,41 +288,14 @@ def main():
             sys.exit(1)
         resultsvalidator.set_schema(schema)
 
-    if not os.path.isfile(os.path.join(build_dir, "CMakeCache.txt")):
-        print("CMakeCache.txt does not exist. Running CMake to configure the ")
-        if run(f"cmake -B {build_dir}  -DCMAKE_BUILD_TYPE=Debug", src_dir) != 0:
-            print(logger.red(f"CMake failed!"))
-            sys.exit(1)
+    if args.language == "cpp":
+        exec_command, exec_cwd, exec_env = build_cpp(
+            build_dir, src_dir, args.run_expected_tests)
+    elif args.language == "python":
+        exec_command, exec_cwd, exec_env = get_python_runner(
+            src_dir, src_template_dir, args.run_expected_tests)
     else:
-        print("CMakeCache.txt exists. Skipping CMake configuration.")
-
-    if run(f"cmake --build . --config Debug -j", build_dir) != 0:
-        print(logger.red("Build failed!"))
-        sys.exit(1)
-
-    if run(f"cmake --install . --config Debug -v", build_dir) != 0:
-        print(logger.red("Cmake install failed!"))
-        sys.exit(1)
-
-    bin_dir = os.path.abspath(os.path.join(src_dir, "bin"))
-    
-    if not os.path.isdir(bin_dir):
-        print(logger.red(f"The bin directory {bin_dir} does not exist. Check "
-                          "the problem_builds_dir and problem arguments."))
-        sys.exit(1)
-    
-    exe_file_name = (
-        "solution_expected_" 
-        if args.run_expected_tests 
-        else "solution_"
-    )
-
-    exe_file = os.path.abspath(os.path.join(
-        bin_dir, f"{exe_file_name}{args.language}" + getExeExtension()))
-    
-    if not os.path.isfile(exe_file):
-        print(logger.red(f"The file {exe_file} does not exist. Check the "
-                         f"problem_builds_dir and problem arguments."))
+        print(logger.red(f"Unsupported language: {args.language}"))
         sys.exit(1)
 
     if not os.path.isdir(testcases_dir):
@@ -259,11 +309,13 @@ def main():
 
     output_file_dir = os.path.abspath(os.path.join(TESTCAST_OUTPUT_DIR))
 
-    ret, error_message = testrunner.runTests(exe_file,
+    ret, error_message = testrunner.runTests(exec_command,
                                              testcases_dir,
                                              output_file_dir,
                                              args.problem,
-                                             args.testcase)
+                                             args.testcase,
+                                             cwd=exec_cwd,
+                                             env=exec_env)
 
     if ret != 0:
         print(logger.red(f"Tests failed! Error: {error_message}"))

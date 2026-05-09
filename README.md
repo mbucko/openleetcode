@@ -78,6 +78,12 @@ dir install/OpenLeetCode
 cd install/OpenLeetCode
 ./openleetcode.sh --language cpp --problem TwoSum
 ```
+Python is also supported in the CLI, but C++ remains the default documented path because the project is fully implemented end to end around it:
+```bash
+cd install/OpenLeetCode
+uv sync   # or: pip install jsonschema
+./openleetcode.sh --language python --problem TwoSum
+```
 #### UI
 ```bash
 cd install/OpenLeetCode
@@ -102,8 +108,9 @@ After the build succeeds, the following directory structure will be generated:
     - ..
 - launguage
     - cpp
+    - python
 
-Just like for LeetCode, you have one file where you solve the problem. For example, the problem called TwoSum has **problems/TwoSum/cpp/solution.cpp**. To add new test cases, you can create a file in the **problems/TwoSum/testcases/** directory with the file extension **.test**, and the solution will automatically be tested against it.
+Just like for LeetCode, you have one file where you solve the problem. The default workflow uses **problems/TwoSum/cpp/solution.cpp**. A CLI-only Python path is also available at **problems/TwoSum/python/solution.py**. To add new test cases, you can create a file in the **problems/TwoSum/testcases/** directory with the file extension **.test**, and the solution will automatically be tested against it.
 
 Each problem is described in the ***description.md*** file location in the problem's directory. For example ***problems/TwoSum/description.md***.
 
@@ -140,13 +147,13 @@ The problem names are automatically extracted from the **problems** folder.
 ## Usage
 ```text
 $ python openleetcode.py --help
-usage: openleetcode.py [-h] [--language {cpp}] [--list-problems] [--list-testcases] [--problem problem_name] [--problem_builds_dir dir] [--testcase testcase_name] [--verbose]
+usage: openleetcode.py [-h] [--language {cpp,python}] [--list-problems] [--list-testcases] [--problem problem_name] [--problem_builds_dir dir] [--testcase testcase_name] [--verbose]
 
-OpenLeetCode problem builder. This script builds and tests LeetCode-like problems locally. Currently, it only supports the C++ language, but it can be extended to support other languages.
+OpenLeetCode problem builder. This script builds and tests LeetCode-like problems locally. It currently supports the C++ and Python languages, but it can be extended to support other languages.
 
 options:
   -h, --help            show this help message and exit
-  --language {cpp}, -l {cpp}
+  --language {cpp,python}, -l {cpp,python}
                         The programming language.
   --list-problems       List problems.
   --list-testcases      List testcases for a problem specified with '--problem' option.
@@ -162,7 +169,7 @@ options:
 ```
 
 ## Note
-Curently only C++ is supported but the framework is setup such that other languages can be added.
+The CLI currently supports C++ and Python. C++ is still the primary end-to-end workflow, and the Electron UI is still C++-only.
 
 ## Requirements
 This project requires the following to run:
