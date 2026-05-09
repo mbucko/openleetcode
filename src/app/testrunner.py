@@ -29,11 +29,39 @@ def printFailure(testcase_name, message):
 def getTestcaseName(file):
     return file[:-5]
 
+def getFailureMessage(results, fallback_message):
+    if fallback_message:
+        return fallback_message
+
+    if results.get("status") != "Failed":
+        return ""
+
+    tests = results.get("tests", [])
+    for test in tests:
+        if test.get("status") != "Failed":
+            continue
+
+        testcase_name = test.get("testcase_name", "Unknown")
+        reason = test.get("reason", "Test failed.")
+        expected = test.get("expected")
+        actual = test.get("actual")
+
+        if expected is not None and actual is not None:
+            return (
+                f"{testcase_name}: {reason} "
+                f"expected={expected} actual={actual}"
+            )
+        return f"{testcase_name}: {reason}"
+
+    return ""
+
 def runTests(exec_filename,
              testcase_dir,
              output_dir_name,
              problem_name,
-             testcase_name):
+             testcase_name,
+             cwd=None,
+             env=None):
     date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     test_restults_filename = os.path.join(output_dir_name,
                                           f"{problem_name}-{date}.results")
@@ -41,25 +69,29 @@ def runTests(exec_filename,
     if not os.path.isdir(output_dir_name):
         os.mkdir(output_dir_name)
     
-    if not os.path.isfile(exec_filename):
-        return 1, f"The file {exec_filename} does not exist."
+    if isinstance(exec_filename, str):
+        command = [exec_filename]
+    else:
+        command = list(exec_filename)
+
+    if len(command) == 0:
+        return 1, "Executable command is empty."
+
+    executable = command[0]
+    if not os.path.isfile(executable):
+        return 1, f"The file {executable} does not exist."
     if True and not os.path.isdir(testcase_dir):
         return 1,  f"The testcase directory {testcase_dir} does not exist."
     
     try:
-        command = (
-            f"{exec_filename} "
-            f"{testcase_dir} "
-            f"{test_restults_filename} "
-            f"{testcase_name}"
-        )
-        logger.log(f"Running command: {command}")
+        command.extend([testcase_dir, test_restults_filename, testcase_name])
+        logger.log(f"Running command: {' '.join(command)}")
         subprocess_obj = subprocess.run(command,
-                                        shell=True,
-                                        cwd=os.path.dirname(exec_filename),
+                                        cwd=(cwd or os.path.dirname(executable)),
                                         timeout=PROBLEM_LTE_S,
                                         stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
+                                        stderr=subprocess.PIPE,
+                                        env=env)
     except subprocess.TimeoutExpired:
         return 1, f"Time Limit Exceeded"
     except Exception as e:
@@ -93,4 +125,6 @@ def runTests(exec_filename,
     
     logger.logResults(results)
     
-    return subprocess_obj.returncode, subprocess_obj.stderr.decode('utf-8')
+    error_message = getFailureMessage(results,
+                                      subprocess_obj.stderr.decode('utf-8'))
+    return subprocess_obj.returncode, error_message
