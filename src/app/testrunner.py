@@ -62,7 +62,8 @@ def runTests(exec_filename,
              testcase_name,
              cwd=None,
              env=None):
-    date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    # Microseconds keep back-to-back runs from reusing a results file name.
+    date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
     test_restults_filename = os.path.join(output_dir_name,
                                           f"{problem_name}-{date}.results")
     
