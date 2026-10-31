@@ -117,8 +117,9 @@ std::enable_if_t<std::is_same_v<std::string, T>, T> parse(std::string value) {
 }
 
 template <typename T>
-std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<bool, T> &&
-                     !std::is_same_v<char, T>, T>
+std::enable_if_t<(std::is_integral_v<T> && !std::is_same_v<bool, T> &&
+                      !std::is_same_v<char, T>) ||
+                     std::is_floating_point_v<T>, T>
     parse(std::string value) {
     removeOuterSpaces(value);
     T ret{};

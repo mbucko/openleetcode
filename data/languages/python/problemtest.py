@@ -1,6 +1,7 @@
 import importlib.util
 import inspect
 import json
+import math
 import os
 import re
 import sys
@@ -12,6 +13,8 @@ from typing import get_origin
 from treenode import TreeNode
 
 ANY_VALUE = "*"
+# Floating point results match when they are within this distance.
+FLOAT_TOLERANCE = 1e-5
 
 
 def build_tree(values):
@@ -88,8 +91,21 @@ def serialize_value(value):
     return value
 
 
+def values_match(actual, expected):
+    if isinstance(actual, list) and isinstance(expected, list):
+        return (len(actual) == len(expected) and
+                all(values_match(a, e) for a, e in zip(actual, expected)))
+    if isinstance(actual, float) or isinstance(expected, float):
+        if isinstance(actual, bool) or isinstance(expected, bool):
+            return False
+        if not isinstance(actual, (int, float)) or not isinstance(expected, (int, float)):
+            return False
+        return math.isclose(actual, expected, rel_tol=0.0, abs_tol=FLOAT_TOLERANCE)
+    return actual == expected
+
+
 def compare_values(actual, expected):
-    return serialize_value(actual) == serialize_value(expected)
+    return values_match(serialize_value(actual), serialize_value(expected))
 
 
 def get_testcase_name(filename):

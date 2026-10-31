@@ -21,7 +21,7 @@
                     "actual": {
                         "anyOf": [
                             {"type": "string"},
-                            {"type": "integer"},
+                            {"type": "number"},
                             {"type": "array"},
                             {"type": "boolean"}
                         ]
@@ -29,7 +29,7 @@
                     "expected": {
                         "anyOf": [
                             {"type": "string"},
-                            {"type": "integer"},
+                            {"type": "number"},
                             {"type": "array"},
                             {"type": "boolean"}
                         ]
