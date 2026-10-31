@@ -1,0 +1,2 @@
+["abc","bca","cab","xyz","zyx","q"]
+[["abc","bca","cab"],["q"],["xyz","zyx"]]
