@@ -1,6 +1,7 @@
 # openleetcode.py
 
 import argparse
+import filecmp
 import json
 import logger
 import os
@@ -16,6 +17,9 @@ import resultsvalidator
 TESTCAST_OUTPUT_DIR = "testcase_output"
 VALIDATION_SCHEMA_FILE_NAME = "results_validation_schema.json"
 SUPPORTED_LANGUAGES = ["cpp", "python"]
+# Template files the user edits; never overwritten once they exist.
+STARTER_FILES = {"solution.py", "solution_expected.py",
+                 "solution.cpp", "solution_expected.cpp"}
 
 def naturalSort(s):
     return [int(text) if text.isdigit() else text.lower()
@@ -242,8 +246,10 @@ def main():
     logger.log(f"Template source directory: {src_template_dir}")
     logger.log(f"Testcases directory: {testcases_dir}")
 
-    # Copy starter files only when they are missing. Python runtime helpers
-    # run from the language template directory instead of being copied here.
+    # Copy starter files only when they are missing. Copy harness files when
+    # they are missing or out of date, so harness fixes reach problems that
+    # were built before. Python runtime helpers run from the language template
+    # directory instead of being copied here.
     skip_copy_files = set()
     if args.language == "python":
         skip_copy_files = {"problemtest.py", "treenode.py"}
@@ -256,6 +262,12 @@ def main():
             continue
         dst_file = os.path.join(src_dir, file)
         if not os.path.isfile(dst_file):
+            needs_copy = True
+        elif file in STARTER_FILES:
+            needs_copy = False
+        else:
+            needs_copy = not filecmp.cmp(src_file, dst_file, shallow=False)
+        if needs_copy:
             logger.log(f"Copying {src_file} to {dst_file}")
             shutil.copy(src_file, dst_file)
     
