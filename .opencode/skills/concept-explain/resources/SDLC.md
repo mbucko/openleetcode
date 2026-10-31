@@ -1,0 +1,1 @@
+The Software Development Life Cycle (SDLC) is a structured process that guides a software project from inception to retirement. Typical phases are: Requirements, Design, Implementation, Testing, Deployment, and Maintenance. Each phase has specific goals and artifacts.

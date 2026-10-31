@@ -1,0 +1,1 @@
+Requirements engineering involves gathering, analyzing, and specifying what a software system should do. It produces artifacts such as user stories, use cases, and functional/non‑functional requirements documents.

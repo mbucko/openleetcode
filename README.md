@@ -1,5 +1,9 @@
 OpenLeetCode - An open source version of LeetCode
 --------------------------------------------------------
+
+> [!IMPORTANT]
+> 🎓 **CS3704 course fork.** This is the Virginia Tech CS3704 fork of [mbucko/openleetcode](https://github.com/mbucko/openleetcode). The course copy lives at **[CS3704-VT/Openleetcode](https://github.com/CS3704-VT/Openleetcode)**. Course-specific instructions are in **[CS3704.md](CS3704.md)**; this README is the upstream documentation.
+
 Welcome to the OpenLeetCode Project!
 
 The motivation behind this project is to be able to practice LeetCode problems on a plane without requiring an internet connection (until Starlink ramps up). This project is not intended to replace or replicate leetcode.com.
@@ -28,6 +32,7 @@ The motivation behind this project is to be able to practice LeetCode problems o
 - [Requirements](#requirements)
 		- [Additional Requirements for the UI](#additional-requirements-for-the-ui)
 - [Contributing](#contributing)
+- [CS3704 Course Notes](CS3704.md)
 
 
 ## Screenshot
@@ -106,7 +111,7 @@ After the build succeeds, the following directory structure will be generated:
     - description.md
   - TwoSum
     - ..
-- launguage
+- languages
     - cpp
     - python
 
@@ -147,7 +152,7 @@ The problem names are automatically extracted from the **problems** folder.
 ## Usage
 ```text
 $ python openleetcode.py --help
-usage: openleetcode.py [-h] [--language {cpp,python}] [--list-problems] [--list-testcases] [--problem problem_name] [--problem_builds_dir dir] [--testcase testcase_name] [--verbose]
+usage: openleetcode.py [-h] [--language {cpp,python}] [--list-problems] [--list-testcases] [--problem problem_name] [--problem_builds_dir dir] [--run-expected-tests] [--testcase testcase_name] [--verbose]
 
 OpenLeetCode problem builder. This script builds and tests LeetCode-like problems locally. It currently supports the C++ and Python languages, but it can be extended to support other languages.
 

@@ -53,3 +53,18 @@ testcase_output/
 
 # Imported modules
 nlohmann/
+
+# opencode runtime (auto-generated dependency files)
+.opencode/node_modules/
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/bun.lock
+.env
+
+# Local workspace and temp files
+.tmp/
+tmp/
+
+# Baker
+.baker*
+

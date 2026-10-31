@@ -1,0 +1,1 @@
+Implementation is the phase where developers write source code that fulfills the design specifications. It typically follows coding standards, unit‑test practices, and version‑control workflows.

@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+# learning-opportunities-auto: PostToolUse hook (matches Bash tool)
+#
+# Fires after every Bash tool use. Checks whether the command was a
+# `git commit` and, if so, suggests that Opencode offer a learning exercise.
+# The skill itself decides whether the commit's content is worth an
+# exercise — this hook just provides the nudge at the right moment.
+#
+# No external dependencies beyond bash and standard Unix tools.
+#
+# NOTE: This script uses the Claude-Code/Codex `PostToolUse` protocol, which
+# opencode does not implement (see env diagnosis, Aug 2026). The ACTIVE
+# in-opencode mechanism is now the opencode plugin
+# .opencode/plugins/learning-opportunity.ts (tool.execute.after), which sends
+# the same nudge. This script is kept as a reference/legacy implementation and
+# shares its /tmp state-file scheme with that plugin.
+
+INPUT=$(cat)
+
+# ---------------------------------------------------------------------------
+# Check if this was a git commit. Opencode sends shell text in a "command"
+# field; Codex can send it in a "cmd" field. False positives (e.g., output
+# that mentions "git commit") are harmless — we just offer a learning exercise
+# unnecessarily.
+# ---------------------------------------------------------------------------
+
+if ! echo "$INPUT" | grep -Eq '"(command|cmd)".*git.*commit'; then
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Extract session_id for rate limiting. It's a top-level UUID — no escaped
+# quotes or nesting to worry about, so basic grep/sed is safe.
+# ---------------------------------------------------------------------------
+
+SESSION_ID=$(echo "$INPUT" | grep -o '"session_id":"[^"]*"' | head -1 | sed 's/"session_id":"//;s/"$//')
+
+if [[ -z "$SESSION_ID" ]]; then
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Session state: track how many exercises have been offered this session.
+# Uses a temp file keyed on session ID; resets when the session ends.
+# ---------------------------------------------------------------------------
+
+STATE_FILE="${TMPDIR:-/tmp}/lo_auto_${SESSION_ID//[^a-zA-Z0-9_-]/_}.state"
+
+offers=0
+if [[ -f "$STATE_FILE" ]]; then
+  offers=$(cat "$STATE_FILE" 2>/dev/null || echo 0)
+fi
+
+# Stop after 5 offers per session.
+if [[ "$offers" -ge 5 ]]; then
+  exit 0
+fi
+
+# Record the offer.
+echo $(( offers + 1 )) > "$STATE_FILE"
+
+# ---------------------------------------------------------------------------
+# Emit suggestion for Opencode via structured JSON. PostToolUse hooks must
+# output JSON with hookSpecificOutput on exit 0 to inject context.
+# The message contains no special characters that need escaping.
+# ---------------------------------------------------------------------------
+
+cat <<'HOOK_JSON'
+{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[learning-opportunities-auto] The user just committed code. Per the learning-opportunities skill, consider whether this is a good moment to offer a learning exercise. If the committed work involved new files, schema changes, architectural decisions, refactors, or unfamiliar patterns, ask the user (one short sentence) if they'd like a 10-15 minute exercise. Do not start the exercise until they confirm. If they decline, note it — no more offers this session."}}
+HOOK_JSON
+
+exit 0

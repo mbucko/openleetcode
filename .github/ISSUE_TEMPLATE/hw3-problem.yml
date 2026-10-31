@@ -1,0 +1,56 @@
+name: HW3 Problem
+description: Propose a LeetCode problem for the CS3704 HW3 OpenLeetcode contribution
+title: ""
+body:
+  - type: input
+    id: problem-name
+    attributes:
+      label: Problem name/title
+      description: Use the LeetCode problem name as the issue title.
+      placeholder: e.g. ValidParentheses
+    validations:
+      required: true
+  - type: input
+    id: problem-url
+    attributes:
+      label: LeetCode link
+      placeholder: https://leetcode.com/problems/valid-parentheses/
+    validations:
+      required: true
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty
+      options:
+        - Easy
+        - Medium
+        - Hard
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Target language
+      options:
+        - C++
+        - Python
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Functional description, input/output format, and constraints
+    validations:
+      required: true
+  - type: textarea
+    id: testcase
+    attributes:
+      label: Test case(s) (at least one)
+      description: One argument per line, expected result on the last line (repo .test format).
+      render: text
+      placeholder: |
+        ["3","7","11","25"]
+        10
+        [0,1]
+    validations:
+      required: true

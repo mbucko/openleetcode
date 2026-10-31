@@ -1,0 +1,22 @@
+{
+  "_note": "Curated concept -> lecture PDF mapping for the concept-explain skill. Filenames are CANDIDATES hosted at https://github.com/CS3704-VT/Course/tree/main/resources/lectures/ (PDFs; may contain spaces/casing that do not match concept names). Keep this list in sync with the actual course lectures. The skill verifies each candidate at runtime (fetch-lecture.sh dump) before using it, then falls back to a runtime filename/text match if a candidate is missing. A concept may map to more than one lecture (e.g. 'Requirements' spans elicitation + specification decks).",
+  "Agile": ["Software_Process.pdf","Project-Management_Requirements-Elicitation.pdf"],
+  "Waterfall": ["Software_Process.pdf"],
+  "SDLC": ["Introduction.pdf", "Software_Process.pdf"],
+  "Software Process": ["Software_Process.pdf"],
+  "Project Management": ["Project-Management_Requirements-Elicitation.pdf"],
+  "Requirements Engineering": ["Project-Management_Requirements-Elicitation.pdf"],
+  "Requirements Elicitation": ["Project-Management_Requirements-Elicitation.pdf"],
+  "Version Control": ["Project-Management_Requirements-Elicitation.pdf"],
+  "Requirements Analysis": ["Requirements-Analysis_Specification.pdf"],
+  "Requirements Specification": ["Requirements-Analysis_Specification.pdf"],
+  "Use cases": ["Requirements-Analysis_Specification.pdf"],
+  "User stories": ["Requirements-Analysis_Specification.pdf"],
+  "Software Design": ["Software-Design.pdf"],
+  "Software Architecture": ["Software-Design.pdf"],
+  "UI Design": ["UI-Design.pdf"],
+  "Implementation": ["Implementation-Maintenance.pdf"],
+  "Code Quality": ["Implementation-Maintenance.pdf"],
+  "Code Analysis": ["Implementation-Maintenance.pdf"],
+  "Maintenance": ["Implementation-Maintenance.pdf","[Project Workday] 10_8.pdf"]
+}

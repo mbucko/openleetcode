@@ -1,0 +1,1 @@
+Software design translates requirements into a blueprint for implementation. It includes architectural decisions, component decomposition, class diagrams, and UI design, and aims to address quality attributes such as modularity, scalability, and maintainability.

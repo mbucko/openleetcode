@@ -1,0 +1,49 @@
+# CS3704 allowed concepts for concept-explain.
+# One concept per line. Lines beginning with '#' are comments.
+# Grouped by Course/README.md unit; keep canonical casing in sync with
+# .opencode/topics/concept-lecture-map.json where concepts overlap.
+
+# Intro to Software Engineering
+SDLC
+Software Process
+Software Engineering Basics
+Version Control
+Agile
+Waterfall
+
+# Requirements
+Project Management
+Requirements Engineering
+Requirements Elicitation
+Requirements Analysis
+Requirements Specification
+Use cases
+User stories
+Acceptance Criteria
+
+# Design
+Software Design
+Software Architecture
+UI Design
+Usability
+
+# Implementation and Maintenance
+Implementation
+Software Maintenance
+Refactoring
+Code Quality
+Technical Debt
+
+# Testing and Deployment
+Testing
+Unit Testing
+Test-Driven Development (TDD)
+Debugging
+Continuous Integration / Continuous Deployment (CI/CD)
+Deployment
+Code Review
+
+# Advanced and Emerging Topics
+Human Aspects of Software Engineering
+Evidence-Based Software Engineering
+AI-Assisted Software Engineering

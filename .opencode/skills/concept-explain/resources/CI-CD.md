@@ -1,0 +1,1 @@
+CI (Continuous Integration) is the practice of frequently integrating code changes into a shared repository, triggering automated builds and tests. CD (Continuous Delivery/Deployment) extends CI by automatically delivering validated changes to staging or production environments.

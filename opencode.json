@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ARC": {
+      "name": "ARC",
+      "npm": "@ai-sdk/openai-compatible",
+      "env": ["ARC_API_KEY"],
+      "options": {
+        "baseURL": "https://llm-api.arc.vt.edu/api/v1"
+      },
+      "models": {
+        "gpt-oss-120b": { "name": "gpt-oss-120b", "limit": { "context": 131072, "output": 16384 } },
+        "DeepSeek-V4.1-Flash": { "name": "DeepSeek-V4.1-Flash", "limit": { "context": 1048576, "output": 16384 } },
+        "GLM-5.3": { "name": "GLM-5.3", "limit": { "context": 131072, "output": 16384 } },
+        "GLM-5.3-thinking-high": { "name": "GLM-5.3-thinking-high", "limit": { "context": 131072, "output": 16384 } }
+      }
+    }
+  },
+  "model": "ARC/DeepSeek-V4.1-Flash"
+}

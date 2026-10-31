@@ -1,0 +1,1 @@
+Waterfall is a linear, sequential software‑development lifecycle where each phase (requirements, design, implementation, testing, deployment, maintenance) must be completed before the next begins. It assumes requirements are stable and well‑understood up‑front.

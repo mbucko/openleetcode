@@ -1,0 +1,1 @@
+Agile is an iterative, incremental software‑development approach that emphasizes collaboration, customer feedback, and small, rapid releases. It favors adaptive planning, continuous improvement, and flexible responses to change over rigid, upfront specifications.

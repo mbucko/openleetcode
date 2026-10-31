@@ -1,0 +1,1 @@
+Advanced topics in software engineering cover areas such as model‑driven development, AI‑augmented coding, evidence‑based engineering, and emerging methodologies. They are typically explored in the latter half of the course and may involve research papers or experimental tools.
