@@ -252,7 +252,14 @@ function runCustomTestcase() {
     document.getElementById('compilation-content').textContent = "";
     document.getElementById('test-results-content').innerHTML = "";
 
-    const input = document.getElementById('input-container').value + "\n*";
+    const inputValue = document.getElementById('input-container').value;
+    if (inputValue.trim() === "") {
+        document.getElementById('testcase-output').textContent =
+            "Enter the input above, one argument per line.";
+        document.getElementById('tab-testcases').click();
+        return;
+    }
+    const input = inputValue + "\n*";
     const customTestcaseFilename =
         directoryManager.getCustomTestcaseFilename(activeProblem);
     if (!file.existsSync(path.dirname(customTestcaseFilename))) {

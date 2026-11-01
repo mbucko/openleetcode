@@ -49,9 +49,12 @@ std::vector<std::string> getTestFiles(const std::string& test_dir_name,
         return test_files;
     }
 
+    // Testcases starting with '_' (like the UI's custom testcase) only run
+    // when requested by name.
     std::filesystem::directory_iterator dir_iter(test_dir_name);
     for (const auto& entry : dir_iter) {
-        if (entry.is_regular_file() && entry.path().extension() == ".test") {
+        if (entry.is_regular_file() && entry.path().extension() == ".test" &&
+            !entry.path().filename().string().starts_with("_")) {
             test_files.emplace_back(entry.path().string());
         }
     }

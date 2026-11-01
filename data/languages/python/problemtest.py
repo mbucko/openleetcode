@@ -127,9 +127,11 @@ def get_test_files(test_dir_name, testcase_name):
             raise FileNotFoundError(f"Testcase file does not exist: {filename}")
         return [filename]
 
+    # Testcases starting with '_' (like the UI's custom testcase) only run
+    # when requested by name.
     test_files = []
     for entry in os.listdir(test_dir_name):
-        if entry.endswith(".test"):
+        if entry.endswith(".test") and not entry.startswith("_"):
             test_files.append(os.path.join(test_dir_name, entry))
 
     def sort_key(path):

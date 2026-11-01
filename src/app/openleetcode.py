@@ -223,7 +223,8 @@ def main():
     if (args.list_testcases):
         print("List of testcases:")
         for testcase in sorted(os.listdir(testcases_dir), key=naturalSort):
-            print(testcase.replace(".test", ""))
+            if not testcase.startswith("_"):
+                print(testcase.replace(".test", ""))
         sys.exit(0)
     
     if (args.testcase != "All"):
