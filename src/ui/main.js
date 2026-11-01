@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const DirectoryManager = require('./directory-manager.js');
 
@@ -45,55 +45,6 @@ function createWindow() {
     })
 }
 
-function registerSaveCommand() {
-    const ret = globalShortcut.register('CommandOrControl+S', () => {
-        console.log('CommandOrControl+S is pressed')
-        win.webContents.send('save-command')
-    })
-
-    if (!ret) {
-        console.log('Registration failed!')
-    }
-
-    console.log("CommandOrControl+S registered: " +
-        globalShortcut.isRegistered('CommandOrControl+S'))
-
-}
-
-function registerRunCommand() {
-    const ret = globalShortcut.register('CommandOrControl+R', () => {
-        console.log('CommandOrControl+R is pressed')
-        win.webContents.send('run-command')
-    })
-
-    if (!ret) {
-        console.log('Registration failed!')
-    }
-
-    console.log("CommandOrControl+R registered: " +
-        globalShortcut.isRegistered('CommandOrControl+R'))
-}
-
-function registerCustomTestcaseCommand() {
-    const ret = globalShortcut.register('CommandOrControl+T', () => {
-        console.log('CommandOrControl+T is pressed')
-        win.webContents.send('custom-testcase-command')
-    })
-
-    if (!ret) {
-        console.log('Registration failed!')
-    }
-
-    console.log("CommandOrControl+T registered: " +
-        globalShortcut.isRegistered('CommandOrControl+T'))
-}
-
-function registerCommands() {
-    registerSaveCommand();
-    registerRunCommand();
-    registerCustomTestcaseCommand();
-}
-
 app.whenReady().then(() => {
     const argv = process.argv;
 
@@ -103,7 +54,6 @@ app.whenReady().then(() => {
             createWindow()
         }
     })
-    registerCommands();
 });
 
 app.on('window-all-closed', () => {
@@ -116,8 +66,4 @@ app.on('activate', () => {
     if (win === null) {
         createWindow()
     }
-})
-
-app.on('will-quit', () => {
-    globalShortcut.unregisterAll()
 })

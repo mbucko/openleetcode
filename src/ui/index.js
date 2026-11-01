@@ -2,7 +2,6 @@ const path = require('path')
 const file = require('fs');
 const amdLoader = require('monaco-editor/min/vs/loader.js');
 const Split = require('split.js')
-const { ipcRenderer } = require('electron');
 const { exec } = require('child_process');
 const DirectoryManager = require('./directory-manager.js');
 const { Validator } = require('jsonschema');
@@ -307,6 +306,19 @@ function onProblemSelected(problemName) {
     updateProblemControls();
 }
 
+// Registers a Cmd/Ctrl+<key> shortcut that only fires while this window has
+// focus. The capture phase lets it work while the code editor has focus.
+function addShortcut(key, handler) {
+    window.addEventListener('keydown', event => {
+        if ((event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === key) {
+            event.preventDefault();
+            event.stopPropagation();
+            handler();
+        }
+    }, true);
+}
+
 // Problem picker: a drawer with search and a difficulty filter, plus
 // previous/next/random buttons in the control panel.
 // Top-level vars share the global scope with directory-manager.js, so these
@@ -463,15 +475,9 @@ function initializeProblemPicker(allProblems) {
         });
     });
 
-    // Capture phase so the shortcut works while the code editor has focus.
-    window.addEventListener('keydown', event => {
-        if ((event.metaKey || event.ctrlKey) &&
-            event.key.toLowerCase() === 'p') {
-            event.preventDefault();
-            event.stopPropagation();
-            isProblemDrawerOpen() ? closeProblemDrawer() : openProblemDrawer();
-        }
-    }, true);
+    addShortcut('p', () => {
+        isProblemDrawerOpen() ? closeProblemDrawer() : openProblemDrawer();
+    });
 
     document.addEventListener('mousedown', event => {
         if (isProblemDrawerOpen() &&
@@ -483,46 +489,25 @@ function initializeProblemPicker(allProblems) {
 }
 
 function initializeSaveCommand() {
-    ipcRenderer.on('save-command', () => {
-        console.log('Received save command');
-        saveSolution('cpp', editor.getValue());
-    });
-    
-    document.getElementById('save-button')
-        .addEventListener('click', function() {
-            console.log('Save button clicked');
-            saveSolution('cpp', editor.getValue());
-    });
+    const save = () => saveSolution('cpp', editor.getValue());
+    addShortcut('s', save);
+    document.getElementById('save-button').addEventListener('click', save);
 }
 
 function initializeRunCommand() {
-    ipcRenderer.on('run-command', () => {
-        console.log('Received run command');
+    const runTests = () => {
         document.getElementById('compilation-content').textContent = "";
         document.getElementById('test-results-content').innerHTML = "";
         run(setTestResults);
-    });
-    
-    document.getElementById('run-button')
-        .addEventListener('click', function() {
-            console.log('Run button clicked');
-            document.getElementById('compilation-content').textContent = "";
-            document.getElementById('test-results-content').innerHTML = "";
-            run(setTestResults);
-    });
+    };
+    addShortcut('r', runTests);
+    document.getElementById('run-button').addEventListener('click', runTests);
 }
 
 function initializeCustomTestcaseCommand() {
-    ipcRenderer.on('custom-testcase-command', () => {
-        console.log('Received custom testcase command');
-        runCustomTestcase();
-    });
-
+    addShortcut('t', runCustomTestcase);
     document.getElementById('custom-testcase-button')
-        .addEventListener('click', function() {
-            console.log('Custom testcase button clicked');
-            runCustomTestcase();
-    });
+        .addEventListener('click', runCustomTestcase);
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
