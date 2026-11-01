@@ -12,6 +12,17 @@ else:
     default_prefix = "/usr/local"
     script_sufix = ".sh"
 
+# The files users write their solutions in. Reinstalling must not overwrite
+# them, or every reinstall would wipe the user's work.
+USER_SOLUTION_FILES = {"solution.cpp", "solution.py"}
+
+def copyKeepingUserSolutions(src, dst):
+    in_problems = os.sep + "problems" + os.sep in dst
+    if (in_problems and os.path.basename(dst) in USER_SOLUTION_FILES and
+            os.path.exists(dst)):
+        return dst
+    return shutil.copy2(src, dst)
+
 def installUI(src_dir, build_dir, install_dir):
     ui_build_dir = os.path.join(build_dir, "ui")
     if os.path.exists(ui_build_dir):
@@ -78,7 +89,8 @@ def installOpenLeetCode(src_dir, install_dir):
     if not os.path.exists(data_dir):
         raise FileNotFoundError(f"No data directory found at {data_dir}")
 
-    shutil.copytree(data_dir, install_dir, dirs_exist_ok=True)
+    shutil.copytree(data_dir, install_dir, dirs_exist_ok=True,
+                    copy_function=copyKeepingUserSolutions)
 
     schema_file = os.path.join(src_dir, "src", "schema", "results_validation_schema.json")
     if not os.path.exists(schema_file):
