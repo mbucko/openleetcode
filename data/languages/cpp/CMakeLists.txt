@@ -75,10 +75,14 @@ target_link_libraries(solution_expected_cpp PRIVATE nlohmann_json::nlohmann_json
 
 set(CMAKE_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
+# One install component per target, so each can be built and installed on
+# its own. A run only builds the solution it tests.
 install(TARGETS solution_cpp
     RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}
+    COMPONENT solution_cpp
 )
 
 install(TARGETS solution_expected_cpp
     RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}
+    COMPONENT solution_expected_cpp
 )

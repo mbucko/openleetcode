@@ -73,11 +73,17 @@ def build_cpp(build_dir, src_dir, run_expected_tests):
     else:
         print("CMakeCache.txt exists. Skipping CMake configuration.")
 
-    if run(f"cmake --build . --config Debug -j", build_dir) != 0:
+    # Only build the solution being tested, so errors in the user's solution
+    # don't break runs of the expected solution.
+    target = "solution_expected_cpp" if run_expected_tests else "solution_cpp"
+
+    if run(f"cmake --build . --config Debug --target {target} -j",
+           build_dir) != 0:
         print(logger.red("Build failed!"))
         sys.exit(1)
 
-    if run(f"cmake --install . --config Debug -v", build_dir) != 0:
+    if run(f"cmake --install . --config Debug --component {target} -v",
+           build_dir) != 0:
         print(logger.red("Cmake install failed!"))
         sys.exit(1)
 
@@ -88,10 +94,8 @@ def build_cpp(build_dir, src_dir, run_expected_tests):
                           "the problem_builds_dir and problem arguments."))
         sys.exit(1)
 
-    exe_file_name = "solution_expected_" if run_expected_tests else "solution_"
-
     exe_file = os.path.abspath(os.path.join(
-        bin_dir, f"{exe_file_name}cpp" + getExeExtension()))
+        bin_dir, target + getExeExtension()))
 
     if not os.path.isfile(exe_file):
         print(logger.red(f"The file {exe_file} does not exist. Check the "
