@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import time
+import traceback
 
 from typing import get_args
 from typing import get_origin
@@ -143,6 +144,7 @@ def get_test_files(test_dir_name, testcase_name):
     return sorted(test_files, key=sort_key)
 
 
+# Returns the Solution class and the path of the file it was loaded from.
 def load_solution_class():
     expected = os.environ.get("OPENLEETCODE_EXPECTED") == "1"
     filename = "solution_expected.py" if expected else "solution.py"
@@ -158,7 +160,7 @@ def load_solution_class():
     solution_class = getattr(module, "Solution", None)
     if solution_class is None:
         raise RuntimeError(f"Solution class not found in {filename}")
-    return solution_class
+    return solution_class, filepath
 
 
 def get_solution_method(solution):
@@ -175,27 +177,48 @@ def get_solution_method(solution):
     return methods[0]
 
 
-def run_test(solution_class, testcase_file_name, test):
+# Describes an error raised by the solution, including the line in the
+# solution file where it happened.
+def describe_runtime_error(error, solution_file):
+    message = f"{type(error).__name__}: {error}"
+    frames = [
+        frame for frame in traceback.extract_tb(error.__traceback__)
+        if os.path.abspath(frame.filename) == os.path.abspath(solution_file)
+    ]
+    if frames:
+        frame = frames[-1]
+        message += f"\n  Line {frame.lineno} in {frame.name}: {frame.line}"
+    return message
+
+
+def failed_result(testcase_file_name, reason, expected="", actual=""):
+    return {
+        "status": "Failed",
+        "testcase_name": get_testcase_name(testcase_file_name),
+        "reason": reason,
+        "expected": expected,
+        "actual": actual,
+        "testcase_file": testcase_file_name,
+    }
+
+
+# Runs one testcase and returns its complete result. Errors raised by the
+# solution propagate to the caller.
+def run_test(solution_class, testcase_file_name):
     solution = solution_class()
     method_name, method = get_solution_method(solution)
     signature = inspect.signature(method)
-
-    test["testcase_name"] = get_testcase_name(testcase_file_name)
+    testcase_name = get_testcase_name(testcase_file_name)
 
     lines = read_lines(testcase_file_name)
     expected_testcase_size = len(signature.parameters) + 1
     if len(lines) != expected_testcase_size:
-        reason = (
+        return failed_result(
+            testcase_file_name,
             "Incorrect number of parameters specified in the testcase file. "
             "Must specify one line per parameter + one line for expected output. "
-            f"Found: {len(lines)} Expected: {expected_testcase_size}."
+            f"Found: {len(lines)} Expected: {expected_testcase_size}.",
         )
-        test["status"] = "Failed"
-        test["reason"] = reason
-        test["expected"] = ""
-        test["actual"] = ""
-        test["testcase_file"] = testcase_file_name
-        return False
 
     expected_str = lines[-1]
     arg_lines = lines[:-1]
@@ -207,21 +230,22 @@ def run_test(solution_class, testcase_file_name, test):
 
     actual = method(*parsed_args)
     if expected_str == ANY_VALUE:
-        test["status"] = "Skipped"
-        test["actual"] = serialize_value(actual)
-        return True
+        return {
+            "status": "Skipped",
+            "testcase_name": testcase_name,
+            "actual": serialize_value(actual),
+        }
 
     expected = parse_typed_value(expected_str, signature.return_annotation)
     if compare_values(actual, expected):
-        test["status"] = "Success"
-        return True
+        return {"status": "Success", "testcase_name": testcase_name}
 
-    test["status"] = "Failed"
-    test["reason"] = "Mismatch between expected and actual output."
-    test["expected"] = serialize_value(expected)
-    test["actual"] = serialize_value(actual)
-    test["testcase_file"] = testcase_file_name
-    return False
+    return failed_result(
+        testcase_file_name,
+        "Mismatch between expected and actual output.",
+        serialize_value(expected),
+        serialize_value(actual),
+    )
 
 
 def main():
@@ -242,12 +266,22 @@ def main():
     success = True
 
     try:
-        solution_class = load_solution_class()
+        solution_class, solution_file = load_solution_class()
         test_files = get_test_files(test_dir_name, testcase_name)
         for testcase_file in test_files:
-            test_json = {}
+            try:
+                test_json = run_test(solution_class, testcase_file)
+            except Exception as error:
+                # An error raised by the solution fails this testcase and
+                # stops the run, like a runtime error on LeetCode.
+                message = describe_runtime_error(error, solution_file)
+                tests_json.append(failed_result(testcase_file,
+                                                f"Runtime error: {message}"))
+                print(message, file=sys.stderr)
+                success = False
+                break
             tests_json.append(test_json)
-            if not run_test(solution_class, testcase_file, test_json):
+            if test_json["status"] == "Failed":
                 success = False
     except Exception as error:
         tests_json.append({
