@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="cabin">
 
 <head>
   <meta charset="UTF-8">
@@ -11,85 +11,91 @@
 
 <body>
   <div class="control-panel">
-    <button id="problem-list-button" title="Problem list (Cmd/Ctrl+P)">☰ Problems</button>
-    <button id="previous-problem-button" title="Previous problem">‹</button>
-    <button id="next-problem-button" title="Next problem">›</button>
-    <button id="random-problem-button" title="Random problem">🔀</button>
-    <span id="active-problem-title" class="label"></span>
-    <select id="language-select" title="Language"></select>
-    <button id="run-button">▶ Run</button>
-    <button id="custom-testcase-button">▶ Custom Testcase</button>
-    <button id="save-button">Save</button>
+    <button id="problem-list-button" class="button" title="Problem list (Cmd/Ctrl+P)">☰ Problems</button>
+    <button id="previous-problem-button" class="button icon-button" title="Previous problem">‹</button>
+    <button id="next-problem-button" class="button icon-button" title="Next problem">›</button>
+    <button id="random-problem-button" class="button" title="Random problem">Random</button>
+    <span id="active-problem-title"></span>
+    <span id="active-problem-difficulty" class="difficulty-badge"></span>
+    <span class="control-panel-spacer"></span>
+    <select id="language-select" class="button" title="Language"></select>
+    <button id="custom-testcase-button" class="button" title="Run custom testcase (Cmd/Ctrl+T)">Custom testcase</button>
+    <button id="save-button" class="button" title="Save (Cmd/Ctrl+S)">Save</button>
+    <button id="run-button" class="button primary-button" title="Run tests (Cmd/Ctrl+R)">▶ Run</button>
+    <button id="settings-button" class="button icon-button" title="Settings">⚙</button>
   </div>
+  <!-- Settings -->
+  <div id="settings-panel">
+    <label for="theme-select">Theme</label>
+    <select id="theme-select" class="button"></select>
+  </div>
+  <!-- Settings END -->
   <!-- Problem Drawer -->
   <div id="problem-drawer">
-    <input id="problem-search" type="text" placeholder="Search problems..." autocomplete="off">
+    <input id="problem-search" type="text" placeholder="Search problems" autocomplete="off">
     <div id="difficulty-filters">
-      <button class="difficulty-filter active" data-difficulty="All">All</button>
-      <button class="difficulty-filter" data-difficulty="Easy">Easy</button>
-      <button class="difficulty-filter" data-difficulty="Medium">Medium</button>
-      <button class="difficulty-filter" data-difficulty="Hard">Hard</button>
+      <button class="button difficulty-filter active" data-difficulty="All">All</button>
+      <button class="button difficulty-filter" data-difficulty="Easy">Easy</button>
+      <button class="button difficulty-filter" data-difficulty="Medium">Medium</button>
+      <button class="button difficulty-filter" data-difficulty="Hard">Hard</button>
     </div>
     <ul id="problem-list"></ul>
     <div id="problem-count"></div>
   </div>
   <!-- Problem Drawer END -->
-  <div class="panel" id="root-panel">
+  <div id="root-panel">
     <!-- Left Panel -->
-    <div id="left-panel" class="panel panel-col">
-      <div class="tab-panel panel-item-fixed-height">
-        <div class="tab">Description</div>
-        <div class="tab-separator"></div>
-        <div class="tab">Solution</div>
+    <div id="left-panel" class="card">
+      <div class="tab-panel">
+        <div class="tab active" data-pane="tab-description">Description</div>
+        <div class="tab" data-pane="tab-solution">Solution</div>
       </div>
-      <div id="tab-description" class="tab-content tab-content-left active">
-        <div class="markdown-content content" id="description-content"></div>
+      <div id="tab-description" class="tab-content active">
+        <div class="markdown-content" id="description-content"></div>
       </div>
-      <div id="tab-solution" class="tab-content tab-content-left">
-        <div class="markdown-content content" id="solution-content"></div>
+      <div id="tab-solution" class="tab-content">
+        <div class="markdown-content" id="solution-content"></div>
       </div>
-      <!-- Add more tab content panes as needed -->
     </div>
     <!-- Left Panel END -->
     <!-- Right Panel -->
-    <div id="right-panel" class="panel panel-col panel-item">
+    <div id="right-panel">
       <!-- Right Panel TOP -->
-      <div id="top-right-panel" class="panel-item panel-left panel panel-col">
-        <div class="tab-panel">Code</div>
-        <div id="user-solution-content" class="panel panel-item"></div>
+      <div id="top-right-panel" class="card">
+        <div class="tab-panel">
+          <div class="tab active">Code</div>
+        </div>
+        <div id="user-solution-content"></div>
       </div>
       <!-- Right Panel TOP END -->
       <!-- Right Panel BOTTOM  -->
-      <div id="bottom-right-panel" class="panel-item">
+      <div id="bottom-right-panel" class="card">
         <div class="tab-panel">
-          <div class="tab" id="tab-testcases">Testcase</div>
-          <div class="tab-separator"></div>
-          <div class="tab" id="tab-test-results-button">Test Results</div>
-          <div class="tab-separator"></div>
-          <div class="tab" id="tab-compilation-button">Compilation</div>
+          <div class="tab active" id="tab-testcases" data-pane="tab-testcase">Testcase</div>
+          <div class="tab" id="tab-test-results-button" data-pane="tab-test-results">Test results<span id="failed-count" class="tab-count"></span></div>
+          <div class="tab" id="tab-compilation-button" data-pane="tab-compilation">Compilation</div>
         </div>
-        <div id="tab-testcase" class="tab-content bottom-right-content content active">
+        <div id="tab-testcase" class="tab-content active">
           <!-- Testcase Container-->
           <div id="tab-testcase-container">
-            <h5 class="testcase-container-title">Input:</h5>
-            <textarea id="input-container" class="testcase-container-text"></textarea>
-            <h5 class="testcase-container-title">Expected:</h5>
-            <textarea readonly id="expected-output" class="testcase-container-text"></textarea>
-            <h5 class="testcase-container-title">Output:</h5>
-            <textarea readonly id="testcase-output" class="testcase-container-text"></textarea>
-            <h5 class="testcase-container-title">Stdout:</h5>
-            <textarea readonly id="testcase-stdout" class="testcase-container-text"></textarea>
-            <h5 class="testcase-container-title">Stderr:</h5>
-            <textarea readonly id="testcase-stderr" class="testcase-container-text"></textarea>
+            <label class="field-label" for="input-container">Input <span class="field-hint">one argument per line</span></label>
+            <textarea id="input-container" class="field"></textarea>
+            <label class="field-label" for="expected-output">Expected</label>
+            <textarea readonly id="expected-output" class="field"></textarea>
+            <label class="field-label" for="testcase-output">Output</label>
+            <textarea readonly id="testcase-output" class="field"></textarea>
+            <label class="field-label" for="testcase-stdout">Stdout</label>
+            <textarea readonly id="testcase-stdout" class="field"></textarea>
+            <label class="field-label" for="testcase-stderr">Stderr</label>
+            <textarea readonly id="testcase-stderr" class="field"></textarea>
           <!-- Testcase Container END -->
           </div>
         </div>
-        <div id="tab-test-results" class="tab-test-results tab-content tab-bottom-right content">
-          <div class="bottom-right-content" id="test-results-content">
-          </div>
+        <div id="tab-test-results" class="tab-content">
+          <div id="test-results-content"></div>
         </div>
-        <div id="tab-compilation" class="tab-compilation compilation-panel tab-content content">
-          <pre class="compilation-content bottom-right-content content" id="compilation-content"></pre>
+        <div id="tab-compilation" class="tab-content">
+          <div class="compilation-content" id="compilation-content"></div>
         </div>
       </div>
       <!-- Right Panel BOTTOM END  -->

@@ -128,20 +128,49 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function readTestcaseFile(filename) {
-    if (filename == undefined) {
-        console.error("Testcase file not defined");
-        return "Testcase file not defined";
+// Arguments of a testcase file: every line except the expected output.
+function readTestcaseInput(test) {
+    // When the whole run fails, testcase_file is the testcases folder.
+    if (test.testcase_file === undefined ||
+        !file.existsSync(test.testcase_file) ||
+        !file.statSync(test.testcase_file).isFile()) {
+        return null;
     }
-    try {
-        var testcaseFileContent = file.readFileSync(filename, "utf8");
-        testcaseFileContent =
-            testcaseFileContent.replace(/\n/g, "<br>&emsp;");
-            return testcaseFileContent;
-    } catch (err) {
-        console.error(`Error reading file ${filename}:`, err);
-        return `Error reading file ${filename}: ${err}`;
+    const lines = file.readFileSync(test.testcase_file, 'utf8').split('\n');
+    return lines.slice(0, -1).join('\n');
+}
+
+function getVerdict(results) {
+    if (results.status === 'Ok') {
+        return 'Accepted';
     }
+    const failed = results.tests.filter(test => test.status === 'Failed');
+    if (failed.some(test => (test.reason || '').startsWith('Runtime error'))) {
+        return 'Runtime error';
+    }
+    if (failed.some(test => test.reason ===
+            'Mismatch between expected and actual output.')) {
+        return 'Wrong answer';
+    }
+    return 'Failed';
+}
+
+function renderTestcaseDetail(test) {
+    const rows = [];
+    const input = readTestcaseInput(test);
+    if (input !== null) {
+        rows.push(['Input', input, '']);
+    }
+    if (test.status === 'Failed' && test.expected !== '') {
+        rows.push(['Output', JSON.stringify(test.actual), 'bad']);
+        rows.push(['Expected', JSON.stringify(test.expected), 'good']);
+    }
+    if (test.reason && !test.reason.startsWith('Mismatch')) {
+        rows.push(['Reason', test.reason, 'bad']);
+    }
+    return rows.map(([label, value, kind]) => `
+        <span class="label">${label}</span>
+        <pre class="value ${kind}">${escapeHtml(value)}</pre>`).join('');
 }
 
 function setTestResults(results) {
@@ -150,38 +179,48 @@ function setTestResults(results) {
     }
     console.log("Setting test results: " + JSON.stringify(results));
     const div = document.getElementById('test-results-content');
+    const tests = results.tests;
+    const passed = tests.filter(test => test.status === 'Success').length;
+    const failedCount = tests.filter(test => test.status === 'Failed').length;
+    const accepted = results.status === 'Ok';
 
-    let html = `
-        <p>Duration: ${results.duration_ms} ms</p>
-        <p>Status: ${results.status}</p>
-        <p>Testcase Filter: ${results.testcase_filter_name}</p>
-        ${results.stderr ? `<p>Error:</p>
-        <pre class="compilation-content">${escapeHtml(results.stderr)}</pre>` : ''}
-        <hr>
-    `;
+    div.innerHTML = `
+        <div class="verdict ${accepted ? 'verdict-pass' : 'verdict-fail'}">
+            <h2>${getVerdict(results)}</h2>
+            <span class="verdict-details">${passed} of ${tests.length}
+                testcases passed in ${results.duration_ms} ms</span>
+        </div>
+        ${results.stderr ?
+            `<pre class="run-error">${escapeHtml(results.stderr)}</pre>` : ''}
+        <div class="testcase-strip"></div>
+        <div class="testcase-detail"></div>`;
 
-    html += results.tests.map(test => {
-        
-        // When the whole run fails, testcase_file is the testcases folder.
-        var testcase;
-        if (test.testcase_file !== undefined &&
-            file.existsSync(test.testcase_file) &&
-            file.statSync(test.testcase_file).isFile()) {
-            testcase = readTestcaseFile(test.testcase_file);
-        }
-    
-        return `
-            <p>Testcase Name: ${test.testcase_name}</p>
-            <p>Status: ${test.status}</p>
-            ${test.actual ? `<p>Actual: ${JSON.stringify(test.actual)}</p>` : ''}
-            ${test.expected ? `<p>Expected: ${JSON.stringify(test.expected)}</p>` : ''}
-            ${test.reason ? `<p>Reason: ${test.reason}</p>` : ''}
-            ${testcase ? `<p>Testcase: ${testcase}</p>` : ''}
-            <hr>
-        `;
-    }).join('');
+    const strip = div.querySelector('.testcase-strip');
+    const detail = div.querySelector('.testcase-detail');
+    const chips = tests.map(test => {
+        const chip = document.createElement('button');
+        const kind = test.status === 'Success' ? 'pass' :
+            test.status === 'Failed' ? 'fail' : 'other';
+        chip.className = `testcase-chip ${kind}`;
+        chip.textContent = test.testcase_name.replace(/^TestCase/, '');
+        chip.title = `${test.testcase_name}: ${test.status}`;
+        chip.addEventListener('click', () => {
+            chips.forEach(other => other.classList.remove('selected'));
+            chip.classList.add('selected');
+            detail.innerHTML = renderTestcaseDetail(test);
+        });
+        strip.appendChild(chip);
+        return chip;
+    });
 
-    div.innerHTML = html;
+    // Open the first failing testcase, as it's the one to look at.
+    const firstFailed = tests.findIndex(test => test.status === 'Failed');
+    if (firstFailed !== -1) {
+        chips[firstFailed].click();
+    }
+
+    document.getElementById('failed-count').textContent =
+        failedCount > 0 ? `${failedCount} failed` : '';
     document.getElementById('tab-test-results-button').click();
 }
 
@@ -399,6 +438,69 @@ function initializeLanguageSelect(languages) {
     });
 }
 
+// Themes: the CSS in styles.css defines each one's colors; the code editor
+// gets a matching Monaco theme.
+const THEMES = {
+    cabin: { label: 'Dark blue', editorTheme: 'openleetcode-cabin' },
+    graphite: { label: 'Dark grey', editorTheme: 'vs-dark' },
+    sheet: { label: 'Light', editorTheme: 'vs' },
+};
+const DEFAULT_THEME = 'cabin';
+const THEME_STORAGE_KEY = 'theme';
+var activeTheme = DEFAULT_THEME;
+
+function defineEditorThemes() {
+    monaco.editor.defineTheme('openleetcode-cabin', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [],
+        colors: {
+            'editor.background': '#0f1923',
+            'editor.lineHighlightBackground': '#15222e',
+            'editorLineNumber.foreground': '#4f6578',
+            'editorLineNumber.activeForeground': '#d8e3ec',
+            'editor.selectionBackground': '#264f78',
+        },
+    });
+}
+
+function applyTheme(theme) {
+    activeTheme = theme;
+    document.documentElement.dataset.theme = theme;
+    if (typeof monaco !== 'undefined') {
+        monaco.editor.setTheme(THEMES[theme].editorTheme);
+    }
+}
+
+function initializeSettings() {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    applyTheme(savedTheme in THEMES ? savedTheme : DEFAULT_THEME);
+
+    const select = document.getElementById('theme-select');
+    Object.entries(THEMES).forEach(([theme, { label }]) => {
+        const option = document.createElement('option');
+        option.value = theme;
+        option.textContent = label;
+        select.appendChild(option);
+    });
+    select.value = activeTheme;
+    select.addEventListener('change', event => {
+        localStorage.setItem(THEME_STORAGE_KEY, event.target.value);
+        applyTheme(event.target.value);
+    });
+
+    const panel = document.getElementById('settings-panel');
+    document.getElementById('settings-button').addEventListener('click', () => {
+        panel.classList.toggle('open');
+    });
+    document.addEventListener('mousedown', event => {
+        if (!event.target.closest('#settings-panel') &&
+            !event.target.closest('#settings-button')) {
+            panel.classList.remove('open');
+        }
+    });
+}
+
 // Registers a Cmd/Ctrl+<key> shortcut that only fires while this window has
 // focus. The capture phase lets it work while the code editor has focus.
 function addShortcut(key, handler) {
@@ -515,8 +617,13 @@ function selectRandomProblem() {
 function updateProblemControls() {
     const index =
         pickerProblems.findIndex(problem => problem.name === activeProblem);
+    const problem = pickerProblems[index];
     document.getElementById('active-problem-title').textContent =
-        problemLabel(pickerProblems[index]);
+        problemLabel(problem);
+    const difficulty = document.getElementById('active-problem-difficulty');
+    difficulty.textContent = problem.difficulty;
+    difficulty.className = 'difficulty-badge difficulty-' +
+        problem.difficulty.toLowerCase();
     document.getElementById('previous-problem-button').disabled = index <= 0;
     document.getElementById('next-problem-button').disabled =
         index >= pickerProblems.length - 1;
@@ -591,6 +698,7 @@ function initializeRunCommand() {
     const runTests = () => {
         document.getElementById('compilation-content').textContent = "";
         document.getElementById('test-results-content').innerHTML = "";
+        document.getElementById('failed-count').textContent = "";
         run(setTestResults);
     };
     addShortcut('r', runTests);
@@ -612,9 +720,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     initializeSaveCommand();
     initializeRunCommand();
     initializeCustomTestcaseCommand();
+    initializeSettings();
 
     amdRequire(['vs/editor/editor.main'], function() {
-        monaco.editor.setTheme('vs-dark');
+        defineEditorThemes();
         editor = monaco.editor.create(
             document.getElementById('user-solution-content'), {
                 language: activeLanguage,
@@ -624,25 +733,27 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     horizontal: 'auto'
                 },
                 automaticLayout: true,
-                scrollBeyondLastLine: false
+                scrollBeyondLastLine: false,
+                theme: THEMES[activeTheme].editorTheme,
+                fontFamily: '"SF Mono", Menlo, Consolas, monospace',
+                fontSize: 13,
         });
 
         onProblemSelected(allProblems[0].name);
     });
 
+    // Each tab names the pane it shows in data-pane.
     tabs.forEach(tab => {
-        tab.addEventListener('click', function(event) {
-            console.log('Tab clicked: ' + this.textContent);
-            var tabContents = event.target.parentNode.parentNode.querySelectorAll('.tab-content');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-     
-            var paneId = this.textContent.toLowerCase().replace(/\s/g, '-');
-            var selectedPane = document.getElementById('tab-' + paneId);
-            if (selectedPane) {
-                selectedPane.classList.add('active');
-            }
+        if (!tab.dataset.pane) {
+            return;
+        }
+        tab.addEventListener('click', function() {
+            const card = this.closest('.card');
+            card.querySelectorAll('.tab').forEach(other =>
+                other.classList.toggle('active', other === this));
+            card.querySelectorAll('.tab-content').forEach(content =>
+                content.classList.toggle('active',
+                                         content.id === this.dataset.pane));
         });
     });
 });
@@ -651,13 +762,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
     Split(['#left-panel', '#right-panel'], {
         minSize: 100,
         sizes: [50, 50],
-        gutterSize: 7,
+        gutterSize: 6,
     })
     
     Split(['#top-right-panel', '#bottom-right-panel'], {
         minSize: 100,
         sizes: [60, 40],
-        gutterSize: 7,
+        gutterSize: 6,
         direction: 'vertical',
         cursor: 'row-resize',
     })
