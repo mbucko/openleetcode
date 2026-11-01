@@ -86,3 +86,18 @@ install(TARGETS solution_expected_cpp
     RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}
     COMPONENT solution_expected_cpp
 )
+
+# Build the user's solution with AddressSanitizer and UndefinedBehaviorSanitizer
+# (when the toolchain supports them), so out-of-bounds access, null
+# dereferences and overflows stop the run and report the line in solution.cpp.
+include(CheckCXXSourceCompiles)
+set(SANITIZER_FLAGS -g -fno-omit-frame-pointer -fsanitize=address,undefined
+                    -fno-sanitize-recover=undefined)
+set(CMAKE_REQUIRED_FLAGS "-fsanitize=address,undefined")
+check_cxx_source_compiles("int main() { return 0; }" HAVE_SANITIZERS)
+unset(CMAKE_REQUIRED_FLAGS)
+
+if(HAVE_SANITIZERS)
+    target_compile_options(solution_cpp PRIVATE ${SANITIZER_FLAGS})
+    target_link_libraries(solution_cpp PRIVATE -fsanitize=address,undefined)
+endif()

@@ -101,9 +101,30 @@ function validateResults(results) {
     return false;
 }
 
+// Picks the one-line description of a crash out of sanitizer output, e.g.
+// "solution.cpp:12:9: runtime error: signed integer overflow: ..." or
+// "heap-buffer-overflow solution.cpp:5 in Solution::twoSum(...)".
+function parseRuntimeError(stderr) {
+    const lines = (stderr || '').split('\n');
+    for (const line of lines) {
+        // UndefinedBehaviorSanitizer: "<path>:<line>:<col>: runtime error: ..."
+        const match = line.match(/^(.*):(\d+):(\d+): runtime error: (.*)$/);
+        if (match) {
+            const [, file, lineNumber, column, message] = match;
+            return `${path.basename(file)}:${lineNumber}:${column}: ${message}`;
+        }
+    }
+    // AddressSanitizer already reports the file name without its directory.
+    const summary = lines.find(line => line.startsWith('SUMMARY: '));
+    if (summary) {
+        return summary.replace(/^SUMMARY: \w+Sanitizer: /, '');
+    }
+    return null;
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text ?? '';
     return div.innerHTML;
 }
 
@@ -206,9 +227,14 @@ function run(callback, testcase = 'All', expected = false) {
         errorcode = resultsJson["errorcode"];
         console.log("errorcode: " + errorcode);
         if (errorcode != undefined && errorcode !== 0) {
-            html = "<p>Errorcode: " + resultsJson.errorcode + "</p>";
-            html += "<p>Stdout: " + resultsJson.stdout + "</p>";
-            html += "<p>Stderr: " + resultsJson.stderr + "</p>";
+            const runtimeError = parseRuntimeError(resultsJson.stderr);
+            html = runtimeError ?
+                `<p>Runtime error: ${escapeHtml(runtimeError)}</p>` : '';
+            html += "<p>Errorcode: " + resultsJson.errorcode + "</p>";
+            html += "<p>Stdout:</p><pre>" + escapeHtml(resultsJson.stdout) +
+                "</pre>";
+            html += "<p>Stderr:</p><pre>" + escapeHtml(resultsJson.stderr) +
+                "</pre>";
 
             element.innerHTML = html;
             document.getElementById('tab-compilation-button').click();
