@@ -304,19 +304,181 @@ function onProblemSelected(problemName) {
     setSolution(problemName);
     setUserSolution(problemName);
     activeProblem = problemName;
+    updateProblemControls();
 }
 
-function initializeProblemsCombo(problemNames) {
-    var select = document.getElementById('problem-select');
-    problemNames.forEach(problemName => {
-        var option = document.createElement('option');
-        option.value = problemName;
-        option.textContent = problemName;
-        select.appendChild(option);
+// Problem picker: a drawer with search and a difficulty filter, plus
+// previous/next/random buttons in the control panel.
+// Top-level vars share the global scope with directory-manager.js, so these
+// names must not collide with its globals (e.g. global.problems).
+var pickerProblems = [];
+var difficultyFilter = 'All';
+var highlightedIndex = 0;
+
+function problemLabel(problem) {
+    return `${problem.number}. ${problem.title}`;
+}
+
+function getFilteredProblems() {
+    const query =
+        document.getElementById('problem-search').value.trim().toLowerCase();
+    return pickerProblems.filter(problem =>
+        (difficultyFilter === 'All' ||
+            problem.difficulty === difficultyFilter) &&
+        problemLabel(problem).toLowerCase().includes(query));
+}
+
+function renderProblemList() {
+    const filtered = getFilteredProblems();
+    highlightedIndex =
+        Math.max(0, Math.min(highlightedIndex, filtered.length - 1));
+
+    const list = document.getElementById('problem-list');
+    list.innerHTML = '';
+    filtered.forEach((problem, index) => {
+        const item = document.createElement('li');
+        item.classList.toggle('active', problem.name === activeProblem);
+        item.classList.toggle('highlighted', index === highlightedIndex);
+
+        const label = document.createElement('span');
+        label.className = 'problem-label';
+        label.textContent = problemLabel(problem);
+
+        const difficulty = document.createElement('span');
+        difficulty.className =
+            'difficulty difficulty-' + problem.difficulty.toLowerCase();
+        difficulty.textContent = problem.difficulty;
+
+        item.append(label, difficulty);
+        item.addEventListener('click', () => selectProblem(problem.name));
+        list.appendChild(item);
     });
 
-    select.addEventListener('change', function(event) {
-        onProblemSelected(event.target.value);
+    document.getElementById('problem-count').textContent =
+        `${filtered.length} of ${pickerProblems.length} problems`;
+
+    const highlighted = list.querySelector('.highlighted');
+    if (highlighted) {
+        highlighted.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+function isProblemDrawerOpen() {
+    return document.getElementById('problem-drawer')
+        .classList.contains('open');
+}
+
+function openProblemDrawer() {
+    const search = document.getElementById('problem-search');
+    search.value = '';
+    highlightedIndex = Math.max(0, getFilteredProblems()
+        .findIndex(problem => problem.name === activeProblem));
+    document.getElementById('problem-drawer').classList.add('open');
+    renderProblemList();
+    search.focus();
+}
+
+function closeProblemDrawer() {
+    document.getElementById('problem-drawer').classList.remove('open');
+}
+
+function selectProblem(problemName) {
+    closeProblemDrawer();
+    if (problemName !== activeProblem) {
+        onProblemSelected(problemName);
+    }
+}
+
+function selectProblemByOffset(offset) {
+    const index =
+        pickerProblems.findIndex(problem => problem.name === activeProblem);
+    const next = pickerProblems[index + offset];
+    if (next) {
+        selectProblem(next.name);
+    }
+}
+
+function selectRandomProblem() {
+    const candidates = getFilteredProblems()
+        .filter(problem => problem.name !== activeProblem);
+    if (candidates.length > 0) {
+        const index = Math.floor(Math.random() * candidates.length);
+        selectProblem(candidates[index].name);
+    }
+}
+
+function updateProblemControls() {
+    const index =
+        pickerProblems.findIndex(problem => problem.name === activeProblem);
+    document.getElementById('active-problem-title').textContent =
+        problemLabel(pickerProblems[index]);
+    document.getElementById('previous-problem-button').disabled = index <= 0;
+    document.getElementById('next-problem-button').disabled =
+        index >= pickerProblems.length - 1;
+}
+
+function onProblemSearchKeyDown(event) {
+    const filtered = getFilteredProblems();
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        highlightedIndex += event.key === 'ArrowDown' ? 1 : -1;
+        renderProblemList();
+    } else if (event.key === 'Enter' && filtered[highlightedIndex]) {
+        selectProblem(filtered[highlightedIndex].name);
+    } else if (event.key === 'Escape') {
+        closeProblemDrawer();
+    }
+}
+
+function initializeProblemPicker(allProblems) {
+    pickerProblems = allProblems;
+
+    document.getElementById('problem-list-button')
+        .addEventListener('click', () => {
+            isProblemDrawerOpen() ? closeProblemDrawer() : openProblemDrawer();
+        });
+    document.getElementById('previous-problem-button')
+        .addEventListener('click', () => selectProblemByOffset(-1));
+    document.getElementById('next-problem-button')
+        .addEventListener('click', () => selectProblemByOffset(1));
+    document.getElementById('random-problem-button')
+        .addEventListener('click', selectRandomProblem);
+
+    const search = document.getElementById('problem-search');
+    search.addEventListener('input', () => {
+        highlightedIndex = 0;
+        renderProblemList();
+    });
+    search.addEventListener('keydown', onProblemSearchKeyDown);
+
+    document.querySelectorAll('.difficulty-filter').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.difficulty-filter')
+                .forEach(other => other.classList.remove('active'));
+            button.classList.add('active');
+            difficultyFilter = button.dataset.difficulty;
+            highlightedIndex = 0;
+            renderProblemList();
+            search.focus();
+        });
+    });
+
+    // Capture phase so the shortcut works while the code editor has focus.
+    window.addEventListener('keydown', event => {
+        if ((event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === 'p') {
+            event.preventDefault();
+            event.stopPropagation();
+            isProblemDrawerOpen() ? closeProblemDrawer() : openProblemDrawer();
+        }
+    }, true);
+
+    document.addEventListener('mousedown', event => {
+        if (isProblemDrawerOpen() &&
+            !event.target.closest('#problem-drawer') &&
+            !event.target.closest('#problem-list-button')) {
+            closeProblemDrawer();
+        }
     });
 }
 
@@ -366,9 +528,8 @@ function initializeCustomTestcaseCommand() {
 document.addEventListener('DOMContentLoaded', (event) => {
     var tabs = document.querySelectorAll('.tab');
 
-    // For now...
-    const problemNames = directoryManager.getProblemNames();
-    initializeProblemsCombo(problemNames);
+    const allProblems = directoryManager.getProblems();
+    initializeProblemPicker(allProblems);
     initializeSaveCommand();
     initializeRunCommand();
     initializeCustomTestcaseCommand();
@@ -387,7 +548,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 scrollBeyondLastLine: false
         });
 
-        onProblemSelected(problemNames[0]);
+        onProblemSelected(allProblems[0].name);
     });
 
     tabs.forEach(tab => {

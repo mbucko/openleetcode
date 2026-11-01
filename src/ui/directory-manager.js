@@ -3,7 +3,7 @@ const fs = require('fs');
 
 global.dirDict = null;
 global.languages = null;
-global.problemNames = null;
+global.problems = null;
 global.resultsSchemaJson = null;
 
 global.problemBuildsDir = null;
@@ -12,6 +12,7 @@ LANGUAGES_DIR_NAME = "languages";
 PROBLEMS_DIR_NAME = "problems";
 TESTCASES_DIR_NAME = "testcases";
 RESULTS_VALIDATION_SCHEMA_FILENAME = "results_validation_schema.json";
+DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
 function getPathsFile() {
     return path.resolve("filePaths.tmp")
@@ -37,12 +38,42 @@ function populateLanguages(languagesDir) {
     return languages;
 }
 
+function readTitle(descriptionFile) {
+    const data = fs.readFileSync(descriptionFile, 'utf8');
+    const match = data.match(/^#\s+(.+)$/m);
+    if (!match) {
+        throw new Error(`No title heading in ${descriptionFile}`);
+    }
+    return match[1].trim();
+}
+
+function readMetadata(metadataFile) {
+    if (!fs.existsSync(metadataFile)) {
+        throw new Error(`Metadata file does not exist: ${metadataFile}`);
+    }
+    const metadata = JSON.parse(fs.readFileSync(metadataFile, 'utf8'));
+    if (!Number.isInteger(metadata.number) ||
+        !DIFFICULTIES.includes(metadata.difficulty)) {
+        throw new Error(`Invalid metadata in ${metadataFile}`);
+    }
+    return metadata;
+}
+
+// Returns the problems sorted by number, each as
+// { name, number, title, difficulty }.
 function populateProblems(problemsDir) {
     var problems = [];
     fs.readdirSync(problemsDir).forEach(problemName => {
-        problems.push(problemName);
+        const problemDir = path.join(problemsDir, problemName);
+        const metadata = readMetadata(path.join(problemDir, 'metadata.json'));
+        problems.push({
+            name: problemName,
+            number: metadata.number,
+            title: readTitle(path.join(problemDir, 'description.md')),
+            difficulty: metadata.difficulty,
+        });
     });
-    return problems;
+    return problems.sort((a, b) => a.number - b.number);
 }
 
 function calculateDirectories() {
@@ -70,7 +101,7 @@ function calculateDirectories() {
     }
 
     const languages = populateLanguages(languagesDir);
-    const problemNames = populateProblems(problemsDir);
+    const problems = populateProblems(problemsDir);
 
     fs.readdirSync(problemsDir).forEach(problemName => {
         // For now assume cpp, later expand to all languages
@@ -117,7 +148,7 @@ function calculateDirectories() {
     
     global.dirDict = localDirDict;
     global.languages = languages;
-    global.problemNames = problemNames;
+    global.problems = problems;
     global.resultsSchemaJson = resultsSchemaJson;
 }
 
@@ -143,8 +174,8 @@ class DirectoryManager {
         return [...global.languages];
     }
 
-    getProblemNames() {
-        return [...global.problemNames];
+    getProblems() {
+        return global.problems.map(problem => ({ ...problem }));
     }
     
     getResultsSchemaJson() {

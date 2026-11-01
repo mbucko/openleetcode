@@ -11,13 +11,28 @@
 
 <body>
   <div class="control-panel">
-    <label class="label problem-label" for="problem-select">Problem:</label>
-    <select id="problem-select">
-    </select>
+    <button id="problem-list-button" title="Problem list (Cmd/Ctrl+P)">☰ Problems</button>
+    <button id="previous-problem-button" title="Previous problem">‹</button>
+    <button id="next-problem-button" title="Next problem">›</button>
+    <button id="random-problem-button" title="Random problem">🔀</button>
+    <span id="active-problem-title" class="label"></span>
     <button id="run-button">▶ Run</button>
     <button id="custom-testcase-button">▶ Custom Testcase</button>
     <button id="save-button">Save</button>
   </div>
+  <!-- Problem Drawer -->
+  <div id="problem-drawer">
+    <input id="problem-search" type="text" placeholder="Search problems..." autocomplete="off">
+    <div id="difficulty-filters">
+      <button class="difficulty-filter active" data-difficulty="All">All</button>
+      <button class="difficulty-filter" data-difficulty="Easy">Easy</button>
+      <button class="difficulty-filter" data-difficulty="Medium">Medium</button>
+      <button class="difficulty-filter" data-difficulty="Hard">Hard</button>
+    </div>
+    <ul id="problem-list"></ul>
+    <div id="problem-count"></div>
+  </div>
+  <!-- Problem Drawer END -->
   <div class="panel" id="root-panel">
     <!-- Left Panel -->
     <div id="left-panel" class="panel panel-col">
