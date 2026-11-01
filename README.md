@@ -22,7 +22,7 @@ The motivation behind this project is to be able to practice LeetCode problems o
 		- [CLI](#cli-1)
 		- [UI](#ui-1)
 - [How To Use](#how-to-use)
-- [List of LeetCode Problems](#list-of-leetcode-problems)
+- [Problems](#problems)
 - [Usage](#usage)
 - [Note](#note)
 - [Requirements](#requirements)
@@ -136,11 +136,14 @@ A ThreeNode structure is represented in an array-based structure. For example an
      / \
     2   3
 
-## List of LeetCode Problems
-* TwoSum
-* LongestSubstringWithoutRepeatingCharacters
-* NumberOfIslands
-* CheckCompletenessOfABinaryTree
+## Problems
+OpenLeetCode ships with over a hundred problems, including variations of LeetCode problems #1 through #100. Every problem has both a C++ and a Python version.
+
+To see the full list, run:
+```bash
+cd install/OpenLeetCode
+./openleetcode.sh --list-problems
+```
 
 The problem names are automatically extracted from the **problems** folder.
 
