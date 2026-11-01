@@ -18,17 +18,27 @@ amdRequire.config({
 });
 
 var activeProblem = null;
+var activeLanguage = null;
+
+const LANGUAGE_LABELS = {
+    cpp: 'C++',
+    python: 'Python',
+};
+const LANGUAGE_STORAGE_KEY = 'language';
 
 // workaround monaco-css not understanding the environment
 self.module = undefined;
 
-function saveSolution(language, content) {
+// Writes the editor content to the solution file of the problem and language
+// the editor is currently showing.
+function saveSolution(content) {
     if (!previousProblem) {
         return;
     }
 
     const userSolutionFilename =
-        directoryManager.getUserSolutionFilename(previousProblem);
+        directoryManager.getUserSolutionFilename(previousProblem,
+                                                 previousLanguage);
 
     if (file.existsSync(userSolutionFilename) &&
         file.readFileSync(userSolutionFilename, 'utf8') === content) {
@@ -137,7 +147,7 @@ function setTestResults(results) {
 }
 
 function run(callback, testcase = 'All', expected = false) {
-    saveSolution('cpp', editor.getValue());
+    saveSolution(editor.getValue());
     const pathsFile = DirectoryManager.getPathsFile();
     if (!file.existsSync(pathsFile)) {
         throw new Error(`Paths file does not exist: ${pathsFile}`);
@@ -149,7 +159,7 @@ function run(callback, testcase = 'All', expected = false) {
 
     const command = `${problemBuildsDir}/openleetcode${extension} ` +
     `--problem_builds_dir ${problemBuildsDir} ` +
-    `--language cpp ` +
+    `--language ${activeLanguage} ` +
     `--problem ${activeProblem} ` +
     `--testcase ${testcase} ` +
     `${expected ? '--run-expected-tests ' : ''}` +
@@ -284,33 +294,65 @@ function setDescription(problemName) {
     element.innerHTML = directoryManager.getDescription(problemName);
 }
 
-function setSolution(problemName) {
+function setSolution(problemName, language) {
     var element = document.querySelector('.markdown-content#solution-content');
-    element.innerHTML = directoryManager.getSolution(problemName);
+    element.innerHTML = directoryManager.getSolution(problemName, language);
 }
 
-function setUserSolution(problemName) {
-    var element = document.querySelector('#user-solution-content');
+function setUserSolution(problemName, language) {
     const userSolutionFilename =
-        directoryManager.getUserSolutionFilename(problemName);
+        directoryManager.getUserSolutionFilename(problemName, language);
     editor.setValue(file.readFileSync(userSolutionFilename, 'utf8'));
+    monaco.editor.setModelLanguage(editor.getModel(), language);
 }
 
+// Saves the code being edited, then loads the given problem and language.
 var previousProblem;
+var previousLanguage;
+function loadSolution(problemName, language) {
+    saveSolution(editor.getValue());
+    previousProblem = problemName;
+    previousLanguage = language;
+
+    setSolution(problemName, language);
+    setUserSolution(problemName, language);
+}
+
 function onProblemSelected(problemName) {
     document.getElementById('testcase-stdout').textContent = "";
     document.getElementById('testcase-stderr').textContent = "";
     document.getElementById('testcase-output').textContent = "";
 
-    saveSolution('cpp', editor.getValue());
-    previousProblem = problemName;
-    
     console.log(`Problem selected: ${problemName}`);
     setDescription(problemName);
-    setSolution(problemName);
-    setUserSolution(problemName);
+    loadSolution(problemName, activeLanguage);
     activeProblem = problemName;
     updateProblemControls();
+}
+
+function onLanguageSelected(language) {
+    console.log(`Language selected: ${language}`);
+    activeLanguage = language;
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    loadSolution(activeProblem, language);
+}
+
+function initializeLanguageSelect(languages) {
+    const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    activeLanguage =
+        languages.includes(savedLanguage) ? savedLanguage : languages[0];
+
+    const select = document.getElementById('language-select');
+    languages.forEach(language => {
+        const option = document.createElement('option');
+        option.value = language;
+        option.textContent = LANGUAGE_LABELS[language];
+        select.appendChild(option);
+    });
+    select.value = activeLanguage;
+    select.addEventListener('change', event => {
+        onLanguageSelected(event.target.value);
+    });
 }
 
 // Registers a Cmd/Ctrl+<key> shortcut that only fires while this window has
@@ -496,7 +538,7 @@ function initializeProblemPicker(allProblems) {
 }
 
 function initializeSaveCommand() {
-    const save = () => saveSolution('cpp', editor.getValue());
+    const save = () => saveSolution(editor.getValue());
     addShortcut('s', save);
     document.getElementById('save-button').addEventListener('click', save);
 }
@@ -522,6 +564,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const allProblems = directoryManager.getProblems();
     initializeProblemPicker(allProblems);
+    initializeLanguageSelect(directoryManager.getLanguages());
     initializeSaveCommand();
     initializeRunCommand();
     initializeCustomTestcaseCommand();
@@ -530,7 +573,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         monaco.editor.setTheme('vs-dark');
         editor = monaco.editor.create(
             document.getElementById('user-solution-content'), {
-                language: 'cpp',
+                language: activeLanguage,
                 minimap: { enabled: false },
                 scrollbar: {
                     vertical: 'auto',

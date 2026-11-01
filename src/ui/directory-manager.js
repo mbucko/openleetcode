@@ -13,6 +13,11 @@ PROBLEMS_DIR_NAME = "problems";
 TESTCASES_DIR_NAME = "testcases";
 RESULTS_VALIDATION_SCHEMA_FILENAME = "results_validation_schema.json";
 DIFFICULTIES = ["Easy", "Medium", "Hard"];
+// The file the user edits for each language the UI supports.
+SOLUTION_FILENAMES = {
+    cpp: "solution.cpp",
+    python: "solution.py",
+};
 
 function getPathsFile() {
     return path.resolve("filePaths.tmp")
@@ -33,7 +38,9 @@ function readMdFile(filePath) {
 function populateLanguages(languagesDir) {
     var languages = [];
     fs.readdirSync(languagesDir).forEach(language => {
-        languages.push(language);
+        if (language in SOLUTION_FILENAMES) {
+            languages.push(language);
+        }
     });
     return languages;
 }
@@ -104,27 +111,29 @@ function calculateDirectories() {
     const problems = populateProblems(problemsDir);
 
     fs.readdirSync(problemsDir).forEach(problemName => {
-        // For now assume cpp, later expand to all languages
-        const language = "cpp";
         const problemDir = path.join(problemsDir, problemName);
         const descriptionFile = path.join(problemDir, 'description.md');
-        const solutionFile = path.join(problemDir, language, 'solution.md');
-        const userSolutionFilename = path.join(problemDir, language, 'solution.cpp');
-
-        if (!fs.existsSync(userSolutionFilename)) {
-            throw new Error(`User solution file does not exist: ${userSolutionFilename}`);
-        }
 
         global.localDirDict[problemName] =
             global.localDirDict[problemName] || {};
         global.localDirDict[problemName]["description"] =
             readMdFile(descriptionFile);
-        global.localDirDict[problemName][language] =
-            global.localDirDict[problemName][language] || {};
-            global.localDirDict[problemName][language]["solution"] =
-                readMdFile(solutionFile);
-            global.localDirDict[problemName][language]
-                ["user-solution-filename"] = userSolutionFilename;
+
+        languages.forEach(language => {
+            const solutionFile =
+                path.join(problemDir, language, 'solution.md');
+            const userSolutionFilename = path.join(
+                problemDir, language, SOLUTION_FILENAMES[language]);
+
+            if (!fs.existsSync(userSolutionFilename)) {
+                throw new Error(`User solution file does not exist: ${userSolutionFilename}`);
+            }
+
+            global.localDirDict[problemName][language] = {
+                "solution": readMdFile(solutionFile),
+                "user-solution-filename": userSolutionFilename,
+            };
+        });
     });
 
     const resultsSchemaFilename =
@@ -162,12 +171,12 @@ class DirectoryManager {
         return global.dirDict[problemName]["description"];
     }
 
-    getSolution(problemName) {
-        return global.dirDict[problemName]["cpp"]["solution"];
+    getSolution(problemName, language) {
+        return global.dirDict[problemName][language]["solution"];
     }
 
-    getUserSolutionFilename(problemName) {
-        return global.dirDict[problemName]["cpp"]["user-solution-filename"];
+    getUserSolutionFilename(problemName, language) {
+        return global.dirDict[problemName][language]["user-solution-filename"];
     }
 
     getLanguages() {

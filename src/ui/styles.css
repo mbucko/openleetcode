@@ -349,3 +349,7 @@ button:disabled:hover {
     font-size: small;
     border-top: 1px solid var(--border_color);
 }
+
+#language-select {
+    margin-left: 10px;
+}
