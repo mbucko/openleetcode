@@ -78,17 +78,19 @@ dir install/OpenLeetCode
 cd install/OpenLeetCode
 ./openleetcode.sh --language cpp --problem TwoSum
 ```
-Python is also supported in the CLI, but C++ remains the default documented path because the project is fully implemented end to end around it:
+Python works the same way:
 ```bash
 cd install/OpenLeetCode
-uv sync   # or: pip install jsonschema
 ./openleetcode.sh --language python --problem TwoSum
 ```
+If [uv](https://docs.astral.sh/uv/) is installed, the script runs inside the project's uv environment and installs its dependencies on first use. Without uv, install the `jsonschema` package for your Python yourself.
 #### UI
 ```bash
 cd install/OpenLeetCode
 ./openleetcodeui.sh
 ```
+In the UI, **☰ Problems** (or Cmd/Ctrl+P) opens the problem list, where you can search and filter by difficulty. The selector next to **▶ Run** switches between C++ and Python. Cmd/Ctrl+S saves, Cmd/Ctrl+R runs the tests and Cmd/Ctrl+T runs a custom testcase.
+
 NOTE: UI for unix is yet to be tested.
 
 ## How To Use
@@ -99,20 +101,24 @@ After the build succeeds, the following directory structure will be generated:
     - cpp
       - solution.cpp
       - ...
+    - python
+      - solution.py
+      - ...
     - testcases
       - TestCase1.test
       - TestCase2.test
       - ...
     - description.md
+    - metadata.json
   - TwoSum
     - ..
 - launguage
     - cpp
     - python
 
-Just like for LeetCode, you have one file where you solve the problem. The default workflow uses **problems/TwoSum/cpp/solution.cpp**. A CLI-only Python path is also available at **problems/TwoSum/python/solution.py**. To add new test cases, you can create a file in the **problems/TwoSum/testcases/** directory with the file extension **.test**, and the solution will automatically be tested against it.
+Just like for LeetCode, you have one file per language where you solve the problem: **problems/TwoSum/cpp/solution.cpp** for C++ and **problems/TwoSum/python/solution.py** for Python. Reinstalling keeps these files, so your solutions are not overwritten. To add new test cases, you can create a file in the **problems/TwoSum/testcases/** directory with the file extension **.test**, and the solution will automatically be tested against it. Test files whose name starts with `_` only run when requested by name with `--testcase`; the UI uses this for its custom testcase.
 
-Each problem is described in the ***description.md*** file location in the problem's directory. For example ***problems/TwoSum/description.md***.
+Each problem is described in the ***description.md*** file location in the problem's directory. For example ***problems/TwoSum/description.md***. The problem's LeetCode number and difficulty are in its ***metadata.json***.
 
 The format of the .test files are as follows:
 
@@ -172,7 +178,7 @@ options:
 ```
 
 ## Note
-The CLI currently supports C++ and Python. C++ is still the primary end-to-end workflow, and the Electron UI is still C++-only.
+Both the CLI and the UI support C++ and Python.
 
 ## Requirements
 This project requires the following to run:
@@ -180,6 +186,7 @@ This project requires the following to run:
 - Python
 - CMake 3.12
 - Git
+- [uv](https://docs.astral.sh/uv/) (recommended), or the `jsonschema` Python package
 
 #### Additional Requirements for the UI
 - npm
