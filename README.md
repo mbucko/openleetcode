@@ -89,9 +89,11 @@ If [uv](https://docs.astral.sh/uv/) is installed, the script runs inside the pro
 cd install/OpenLeetCode
 ./openleetcodeui.sh
 ```
-In the UI, **☰ Problems** (or Cmd/Ctrl+P) opens the problem list, where you can search and filter by difficulty. The selector next to **▶ Run** switches between C++ and Python. Cmd/Ctrl+S saves, Cmd/Ctrl+R runs the tests and Cmd/Ctrl+T runs a custom testcase.
+In the UI, **☰ Problems** (or Cmd/Ctrl+P) opens the problem list, where you can search and filter by difficulty. The selector next to **▶ Run** switches between C++ and Python, and **⚙** changes the theme (dark blue, dark grey or light). Cmd/Ctrl+S saves, Cmd/Ctrl+R runs the tests and Cmd/Ctrl+T runs a custom testcase.
 
-NOTE: UI for unix is yet to be tested.
+Test results show whether your solution was accepted and one green or red box per testcase; select a box to see that testcase's input, your output and the expected output. If your code crashes or raises an error, the result shows the line in your solution where it happened.
+
+NOTE: The UI has been used on macOS; Linux is yet to be tested.
 
 ## How To Use
 After the build succeeds, the following directory structure will be generated:
@@ -155,25 +157,36 @@ The problem names are automatically extracted from the **problems** folder.
 
 ## Usage
 ```text
-$ python openleetcode.py --help
-usage: openleetcode.py [-h] [--language {cpp,python}] [--list-problems] [--list-testcases] [--problem problem_name] [--problem_builds_dir dir] [--testcase testcase_name] [--verbose]
+$ ./openleetcode.sh --help
+usage: openleetcode.py [-h] [--language {cpp,python}] [--list-problems]
+                       [--list-testcases] [--problem problem_name]
+                       [--problem_builds_dir dir] [--run-expected-tests]
+                       [--testcase testcase_name] [--verbose]
 
-OpenLeetCode problem builder. This script builds and tests LeetCode-like problems locally. It currently supports the C++ and Python languages, but it can be extended to support other languages.
+OpenLeetCode problem builder. This script builds and tests a LeetCode-like
+problems locally. Currently, it supports the C++ and Python languages, but it
+can be extended to support other languages.
 
 options:
   -h, --help            show this help message and exit
   --language {cpp,python}, -l {cpp,python}
                         The programming language.
   --list-problems       List problems.
-  --list-testcases      List testcases for a problem specified with '--problem' option.
+  --list-testcases      List testcases for a problem specified with '--
+                        problem' option.
   --problem problem_name, -p problem_name
-                        Name of the problem to build and test. Default: TwoSum. Use --list-problems to list all problems.
+                        Name of the problem to build and test. Default:
+                        TwoSum. Use --list-problems to list all problems.
   --problem_builds_dir dir, -d dir
-                        Specifies the directory with the problems. Typically, this is './problem_builds'. If not provided, the script defaults to './problem_builds' in the same directory as the executable.
+                        Specifies the directory with the problems. Typically,
+                        this is './problem_builds'. If not provided, the
+                        script defaults to './problem_builds' in the same
+                        directory as the executable.
   --run-expected-tests, -r
                         Run the expected solution. Default: False.
   --testcase testcase_name, -t testcase_name
-                        Name of the testcase to run. '--testcase All' will run all testcases. Default: All.
+                        Name of the testcase to run. '--testcase All' will run
+                        all testcases. Default: All.
   --verbose, -v         Print verbose output
 ```
 

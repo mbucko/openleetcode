@@ -1,47 +1,70 @@
 # Getting Started
 
-Welcome to the OpenLeetCode Project! This guide will describe how to add support for a new language.
+Welcome to the OpenLeetCode Project! This guide describes how a problem is built and tested, and how to add support for a new language.
 
 ## Table of Contents
 
 - [Getting Started](#getting-started)
 	- [Table of Contents](#table-of-contents)
-	- [Adding support for a new language](#adding-support-for-a-new-language)
+	- [Directory Layout](#directory-layout)
 	- [Building and Running the Testcases](#building-and-running-the-testcases)
 			- [Setup](#setup)
 			- [Build and Run](#build-and-run)
 			- [The Results](#the-results)
 	- [Schema Validation](#schema-validation)
+	- [Adding support for a new language](#adding-support-for-a-new-language)
 
-## Adding support for a new language
+## Directory Layout
 
-The support for each language should be self contained within its own folder, located in ``problems_build/problems/language/<language>``. For example, the repository currently ships ``cpp`` and ``python``:
+After installing, the install directory (for example ``install/OpenLeetCode``) contains:
 
-- problem_builds
-  - problems
-    - launguage
-      - cpp
-      - python
+- languages
+  - cpp
+  - python
+- problems
+  - TwoSum
+    - cpp
+    - python
+    - testcases
+    - description.md
+    - metadata.json
+- results_validation_schema.json
 
-Any newly added language must adhere to the guidelines in the following sections.
+Each language's test harness lives in its own folder under ``languages``. Each problem has a folder per language with the user's solution file (``solution.cpp``, ``solution.py``), the reference solution (``solution_expected.*``) and its write-up (``solution.md``), plus the shared testcases, description and metadata (LeetCode number and difficulty).
+
+Reinstalling refreshes everything except the users' solution files, which are never overwritten.
 
 ## Building and Running the Testcases
 
 #### Setup
-When ``openleetcode`` is executed, two of the specified parameters are ``problem`` and ``language``. In the default workflow, let's assume the problem is ``TwoSum`` and the language is ``cpp``.
+When ``openleetcode`` is executed, two of the specified parameters are ``problem`` and ``language``. Let's assume the problem is ``TwoSum`` and the language is ``cpp``.
 
-``openleetcode`` copies all files from ``problems_build/language/cpp`` into the ``problems_build/problems/TwoSum/cpp`` directory when they are missing. In the current project, C++ is the primary end-to-end path and is also the language used by the Electron UI.
+``openleetcode`` copies the harness files from ``languages/cpp`` into ``problems/TwoSum/cpp``. Missing files are copied, and harness files that differ from the template are refreshed, so harness fixes reach problems that were built before. Solution files are never overwritten.
 
 #### Build and Run
-Once the copying is complete, the selected language runtime is executed against the specified test cases from ``problems_build/problems/TwoSum/testcases``. For C++, this means configuring and building with CMake. Python is also available through the CLI, where the shared Python runner loads ``solution.py`` or ``solution_expected.py`` and writes the same ``.results`` format, but it is not yet the default UI path.
+The selected language's harness is then run against the testcases in ``problems/TwoSum/testcases``.
+
+- **C++** is configured and built with CMake. Only the executable being tested is built: ``solution_cpp`` for the user's solution, or ``solution_expected_cpp`` with ``--run-expected-tests``, so a compile error in the user's solution doesn't break runs of the reference solution. Where the compiler supports them, the user's solution is built with AddressSanitizer and UndefinedBehaviorSanitizer, so out-of-bounds access, null dereferences and overflows stop the run and report the line in ``solution.cpp``.
+- **Python** runs ``languages/python/problemtest.py``, which loads ``solution.py``, or ``solution_expected.py`` with ``--run-expected-tests``. An error raised by the solution fails that testcase as a runtime error, with the error and the line in ``solution.py``, and stops the run.
+
+``--testcase All`` runs every ``.test`` file except those whose name starts with ``_``. Those only run when requested by name; the UI uses ``_custom_testcase`` for its custom testcase.
 
 #### The Results
-The results of this run will be stored inside ``testcase_output/TwoSum-<datetime>.results``.
-
+The results of a run are stored in ``testcase_output/TwoSum-<datetime>.results``, relative to the directory ``openleetcode`` is run from. The timestamp includes microseconds, so back-to-back runs never share a file.
 
 ## Schema Validation
-Once ``openleetcode`` executes the built binary against the testcases, it then picks up the results file and adds two properties: ``stderr`` and ``stdout`` then write it back to its original location. The ``.result`` file is in a json format specified by a validation schema that is used to validate this results file. The validation schema can be found in ``testcase_output/results_validation_schema.json``.
+Once ``openleetcode`` has run the harness, it reads the results file, adds the run's ``stderr`` (and ``stdout`` for single-testcase runs), and writes it back. If the harness exited without writing a results file, for example because the solution crashed, ``openleetcode`` writes one with the ``errorcode``, ``stdout`` and ``stderr`` instead.
 
-Once ``openleetcode`` executes the built binary against the test cases, it then retrieves the results file and adds two properties: ``stderr`` and ``stdout`` before writing it back to its original location. The ``.result`` file is in JSON format, as specified by a validation schema in ``testcase_output/results_validation_schema.json``. This schema is also used to validating the results file.
+The ``.results`` file is JSON in the format defined by ``results_validation_schema.json`` in the install directory, and is validated against it. Schema validation keeps the results consistent across languages, which the UI relies on to display them the same way regardless of the language.
 
-Note: Schema validation ensures consistent formatting of the results file for multiple languages. A UI component will rely on the results file being in a consistent format, regardless of the programming language.
+## Adding support for a new language
+
+To add a language:
+
+1. Add its harness in ``data/languages/<language>``. It is run with three arguments: the testcases directory, the results file to write, and the testcase name (``All`` or a single testcase). It must:
+   - read each ``.test`` file: one line per argument, then the expected output (``*`` means any output is accepted, which the custom testcase uses);
+   - skip testcases whose name starts with ``_`` when running ``All``;
+   - write a results file that passes ``results_validation_schema.json``, with a complete result for every testcase it ran, including when the solution fails or raises an error.
+2. Add a ``<language>`` folder with ``solution.*``, ``solution_expected.*`` and ``solution.md`` to every problem in ``data/problems``.
+3. Register the language in ``src/app/openleetcode.py`` (``SUPPORTED_LANGUAGES`` and how to build or run it), in ``src/ui/directory-manager.js`` (``SOLUTION_FILENAMES``) and in ``src/ui/index.js`` (``LANGUAGE_LABELS``).
+4. Run every problem's reference solution with ``--run-expected-tests`` in the new language and check that all of them pass.
