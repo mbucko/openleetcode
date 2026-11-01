@@ -77,21 +77,34 @@ function parseBuildError(stdout) {
     return buildError;
 }
 
+// Returns whether the results match the schema. If they don't, the reason is
+// shown in the Compilation tab so a broken run is never silently ignored.
 function validateResults(results) {
+    let error;
     try {
         const schema = directoryManager.getResultsSchemaJson();
         const v = new Validator();
         const validation = v.validate(results, schema);
-        if (!validation.valid) {
-            console.error("Validation errors:", validation.errors);
-            return false;
+        if (validation.valid) {
+            return true;
         }
-    } catch (e) {   
-        console.error("Error validating data:", e);
-        return false;
+        error = validation.errors.map(e => e.stack).join('\n');
+    } catch (e) {
+        error = String(e);
     }
 
-    return true;
+    console.error("Invalid test results:", error);
+    document.getElementById('compilation-content').textContent =
+        "The test run produced invalid results:\n" + error +
+        "\n\nResults:\n" + JSON.stringify(results, null, 4);
+    document.getElementById('tab-compilation-button').click();
+    return false;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function readTestcaseFile(filename) {
@@ -104,9 +117,9 @@ function readTestcaseFile(filename) {
         testcaseFileContent =
             testcaseFileContent.replace(/\n/g, "<br>&emsp;");
             return testcaseFileContent;
-    } catch (err) {              
-        console.error("Error reading file ${filename}:", err);
-        return "Error reading file ${filename}: ${err}";
+    } catch (err) {
+        console.error(`Error reading file ${filename}:`, err);
+        return `Error reading file ${filename}: ${err}`;
     }
 }
 
@@ -121,13 +134,18 @@ function setTestResults(results) {
         <p>Duration: ${results.duration_ms} ms</p>
         <p>Status: ${results.status}</p>
         <p>Testcase Filter: ${results.testcase_filter_name}</p>
+        ${results.stderr ? `<p>Error:</p>
+        <pre class="compilation-content">${escapeHtml(results.stderr)}</pre>` : ''}
         <hr>
     `;
 
     html += results.tests.map(test => {
         
+        // When the whole run fails, testcase_file is the testcases folder.
         var testcase;
-        if (test.testcase_file !== undefined) {
+        if (test.testcase_file !== undefined &&
+            file.existsSync(test.testcase_file) &&
+            file.statSync(test.testcase_file).isFile()) {
             testcase = readTestcaseFile(test.testcase_file);
         }
     
