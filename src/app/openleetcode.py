@@ -21,6 +21,12 @@ SUPPORTED_LANGUAGES = ["cpp", "python"]
 STARTER_FILES = {"solution.py", "solution_expected.py",
                  "solution.cpp", "solution_expected.cpp"}
 
+# The problem's LeetCode number from its metadata.json.
+def problemNumber(problems_dir, problem):
+    metadata_file = os.path.join(problems_dir, problem, "metadata.json")
+    with open(metadata_file, "r") as f:
+        return json.load(f)["number"]
+
 def naturalSort(s):
     return [int(text) if text.isdigit() else text.lower()
             for text in re.split('([0-9]+)', s)]
@@ -189,9 +195,11 @@ def main():
 
     if (args.list_problems):
         print("List of problems:")
-        for problem in os.listdir(problems_dir):
+        for problem in sorted(os.listdir(problems_dir),
+                              key=lambda name: problemNumber(problems_dir,
+                                                             name)):
             print(problem)
-        sys.exit(1)
+        sys.exit(0)
 
     problem_dir = os.path.join(problem_builds_dir, "problems", args.problem)
     if not os.path.isdir(problem_dir):
