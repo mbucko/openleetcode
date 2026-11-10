@@ -17,6 +17,7 @@
     <button id="random-problem-button" class="button" title="Random problem">Random</button>
     <span id="active-problem-title"></span>
     <span id="active-problem-difficulty" class="difficulty-badge"></span>
+    <span id="active-problem-solved" title="All testcases passed in this language"></span>
     <span class="control-panel-spacer"></span>
     <select id="language-select" class="button" title="Language"></select>
     <button id="custom-testcase-button" class="button" title="Run custom testcase (Cmd/Ctrl+T)">Custom testcase</button>
@@ -38,6 +39,11 @@
       <button class="button difficulty-filter" data-difficulty="Easy">Easy</button>
       <button class="button difficulty-filter" data-difficulty="Medium">Medium</button>
       <button class="button difficulty-filter" data-difficulty="Hard">Hard</button>
+    </div>
+    <div id="status-filters">
+      <button class="button status-filter active" data-status="All">All</button>
+      <button class="button status-filter" data-status="Unsolved">Unsolved</button>
+      <button class="button status-filter" data-status="Solved">Solved</button>
     </div>
     <ul id="problem-list"></ul>
     <div id="problem-count"></div>

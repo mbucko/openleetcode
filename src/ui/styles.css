@@ -159,6 +159,12 @@ select.button {
     font-weight: 600;
 }
 
+#active-problem-solved {
+    color: var(--pass);
+    font-size: 12px;
+    font-weight: 600;
+}
+
 .difficulty-badge:empty {
     display: none;
 }
@@ -569,13 +575,13 @@ code {
     border-color: var(--accent);
 }
 
-#difficulty-filters {
+#difficulty-filters, #status-filters {
     display: flex;
     gap: 6px;
     margin: 0 10px 8px;
 }
 
-.difficulty-filter.active {
+.difficulty-filter.active, .status-filter.active {
     border-color: var(--accent);
 }
 
@@ -589,7 +595,7 @@ code {
 
 #problem-list li {
     display: flex;
-    justify-content: space-between;
+    gap: 6px;
     padding: 6px 12px;
     cursor: pointer;
 }
@@ -602,7 +608,14 @@ code {
     font-weight: 600;
 }
 
+.solved-mark {
+    flex: none;
+    width: 14px;
+    color: var(--pass);
+}
+
 .problem-label {
+    flex: 1;
     margin-right: 10px;
     overflow: hidden;
     text-overflow: ellipsis;

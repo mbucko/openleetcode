@@ -13,6 +13,12 @@ PROBLEMS_DIR_NAME = "problems";
 TESTCASES_DIR_NAME = "testcases";
 RESULTS_VALIDATION_SCHEMA_FILENAME = "results_validation_schema.json";
 DIFFICULTIES = ["Easy", "Medium", "Hard"];
+// A copy of the last user solution that passed all testcases, kept next to
+// the user's solution file. The problem is solved while the two match.
+ACCEPTED_FILENAMES = {
+    cpp: "solution_accepted.cpp",
+    python: "solution_accepted.py",
+};
 // The file the user edits for each language the UI supports.
 SOLUTION_FILENAMES = {
     cpp: "solution.cpp",
@@ -201,6 +207,14 @@ class DirectoryManager {
                          problemName,
                          TESTCASES_DIR_NAME,
                          this.getCustomTestcaseName() + '.test');
+    }
+
+    getAcceptedFilename(problemName, language) {
+        return path.join(problemBuildsDir,
+                         PROBLEMS_DIR_NAME,
+                         problemName,
+                         language,
+                         ACCEPTED_FILENAMES[language]);
     }
 }
 

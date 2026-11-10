@@ -48,6 +48,8 @@ function saveSolution(content) {
     console.log("Saving problem " + previousProblem + " to " +
         userSolutionFilename);
     file.writeFileSync(userSolutionFilename, content);
+    // Whether the problem is solved depends on the saved code.
+    updateProblemControls();
 }
 
 function parseResultsFileFromStdout(stdout) {
@@ -173,9 +175,11 @@ function renderTestcaseDetail(test) {
         <pre class="value ${kind}">${escapeHtml(value)}</pre>`).join('');
 }
 
+// Shows the results of a full test run and returns whether every testcase
+// passed.
 function setTestResults(results) {
     if (!validateResults(results)) {
-        return;
+        return false;
     }
     console.log("Setting test results: " + JSON.stringify(results));
     const div = document.getElementById('test-results-content');
@@ -222,6 +226,7 @@ function setTestResults(results) {
     document.getElementById('failed-count').textContent =
         failedCount > 0 ? `${failedCount} failed` : '';
     document.getElementById('tab-test-results-button').click();
+    return accepted;
 }
 
 function run(callback, testcase = 'All', expected = false) {
@@ -418,6 +423,7 @@ function onLanguageSelected(language) {
     activeLanguage = language;
     localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
     loadSolution(activeProblem, language);
+    updateProblemControls();
 }
 
 function initializeLanguageSelect(languages) {
@@ -514,12 +520,41 @@ function addShortcut(key, handler) {
     }, true);
 }
 
-// Problem picker: a drawer with search and a difficulty filter, plus
-// previous/next/random buttons in the control panel.
+// Solved problems. When a full test run of the user's solution passes, the
+// code that passed is copied to the problem's accepted file. A problem is
+// solved in a language while its solution file is identical to that copy, so
+// the status always describes the code on disk: editing the solution makes
+// it unsolved until it passes again.
+function readFileIfExists(filename) {
+    return file.existsSync(filename) ? file.readFileSync(filename, 'utf8') :
+        null;
+}
+
+function isSolved(problemName, language) {
+    const accepted = readFileIfExists(
+        directoryManager.getAcceptedFilename(problemName, language));
+    return accepted !== null && accepted === readFileIfExists(
+        directoryManager.getUserSolutionFilename(problemName, language));
+}
+
+function getSolvedProblems(language) {
+    return new Set(pickerProblems
+        .filter(problem => isSolved(problem.name, language))
+        .map(problem => problem.name));
+}
+
+function recordAccepted(problemName, language, code) {
+    file.writeFileSync(
+        directoryManager.getAcceptedFilename(problemName, language), code);
+}
+
+// Problem picker: a drawer with search and difficulty and solved filters,
+// plus previous/next/random buttons in the control panel.
 // Top-level vars share the global scope with directory-manager.js, so these
 // names must not collide with its globals (e.g. global.problems).
 var pickerProblems = [];
 var difficultyFilter = 'All';
+var statusFilter = 'All';
 var highlightedIndex = 0;
 
 function problemLabel(problem) {
@@ -529,9 +564,12 @@ function problemLabel(problem) {
 function getFilteredProblems() {
     const query =
         document.getElementById('problem-search').value.trim().toLowerCase();
+    const solved = getSolvedProblems(activeLanguage);
     return pickerProblems.filter(problem =>
         (difficultyFilter === 'All' ||
             problem.difficulty === difficultyFilter) &&
+        (statusFilter === 'All' ||
+            (statusFilter === 'Solved') === solved.has(problem.name)) &&
         problemLabel(problem).toLowerCase().includes(query));
 }
 
@@ -540,12 +578,17 @@ function renderProblemList() {
     highlightedIndex =
         Math.max(0, Math.min(highlightedIndex, filtered.length - 1));
 
+    const solved = getSolvedProblems(activeLanguage);
     const list = document.getElementById('problem-list');
     list.innerHTML = '';
     filtered.forEach((problem, index) => {
         const item = document.createElement('li');
         item.classList.toggle('active', problem.name === activeProblem);
         item.classList.toggle('highlighted', index === highlightedIndex);
+
+        const solvedMark = document.createElement('span');
+        solvedMark.className = 'solved-mark';
+        solvedMark.textContent = solved.has(problem.name) ? '✓' : '';
 
         const label = document.createElement('span');
         label.className = 'problem-label';
@@ -556,13 +599,14 @@ function renderProblemList() {
             'difficulty difficulty-' + problem.difficulty.toLowerCase();
         difficulty.textContent = problem.difficulty;
 
-        item.append(label, difficulty);
+        item.append(solvedMark, label, difficulty);
         item.addEventListener('click', () => selectProblem(problem.name));
         list.appendChild(item);
     });
 
     document.getElementById('problem-count').textContent =
-        `${filtered.length} of ${pickerProblems.length} problems`;
+        `${filtered.length} of ${pickerProblems.length} problems · ` +
+        `${solved.size} solved in ${LANGUAGE_LABELS[activeLanguage]}`;
 
     const highlighted = list.querySelector('.highlighted');
     if (highlighted) {
@@ -624,6 +668,8 @@ function updateProblemControls() {
     difficulty.textContent = problem.difficulty;
     difficulty.className = 'difficulty-badge difficulty-' +
         problem.difficulty.toLowerCase();
+    document.getElementById('active-problem-solved').textContent =
+        isSolved(activeProblem, activeLanguage) ? '✓ Solved' : '';
     document.getElementById('previous-problem-button').disabled = index <= 0;
     document.getElementById('next-problem-button').disabled =
         index >= pickerProblems.length - 1;
@@ -663,16 +709,25 @@ function initializeProblemPicker(allProblems) {
     });
     search.addEventListener('keydown', onProblemSearchKeyDown);
 
-    document.querySelectorAll('.difficulty-filter').forEach(button => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.difficulty-filter')
-                .forEach(other => other.classList.remove('active'));
-            button.classList.add('active');
-            difficultyFilter = button.dataset.difficulty;
-            highlightedIndex = 0;
-            renderProblemList();
-            search.focus();
+    // Each filter is a row of buttons where exactly one is active.
+    const initializeFilter = (selector, onSelect) => {
+        const buttons = document.querySelectorAll(selector);
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(other =>
+                    other.classList.toggle('active', other === button));
+                onSelect(button);
+                highlightedIndex = 0;
+                renderProblemList();
+                search.focus();
+            });
         });
+    };
+    initializeFilter('.difficulty-filter', button => {
+        difficultyFilter = button.dataset.difficulty;
+    });
+    initializeFilter('.status-filter', button => {
+        statusFilter = button.dataset.status;
     });
 
     addShortcut('p', () => {
@@ -699,7 +754,19 @@ function initializeRunCommand() {
         document.getElementById('compilation-content').textContent = "";
         document.getElementById('test-results-content').innerHTML = "";
         document.getElementById('failed-count').textContent = "";
-        run(setTestResults);
+        // The run is asynchronous, so remember what it tests in case the
+        // user edits the code or switches problem or language before it
+        // finishes. run() saves the editor content, so this is the code that
+        // gets tested.
+        const problemName = activeProblem;
+        const language = activeLanguage;
+        const code = editor.getValue();
+        run(results => {
+            if (setTestResults(results)) {
+                recordAccepted(problemName, language, code);
+                updateProblemControls();
+            }
+        });
     };
     addShortcut('r', runTests);
     document.getElementById('run-button').addEventListener('click', runTests);
