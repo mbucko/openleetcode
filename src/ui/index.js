@@ -523,8 +523,8 @@ function addShortcut(key, handler) {
 // Solved problems. When a full test run of the user's solution passes, the
 // code that passed is copied to the problem's accepted file. A problem is
 // solved in a language while its solution file is identical to that copy, so
-// the status always describes the code on disk: editing the solution makes
-// it unsolved until it passes again.
+// the status always describes the code on disk: editing the solution, or
+// resetting it to the starter code, makes it unsolved until it passes again.
 function readFileIfExists(filename) {
     return file.existsSync(filename) ? file.readFileSync(filename, 'utf8') :
         null;
@@ -772,6 +772,49 @@ function initializeRunCommand() {
     document.getElementById('run-button').addEventListener('click', runTests);
 }
 
+// Replaces the code being edited with the problem's starter code and saves
+// it, once the user confirms in a dialog.
+function resetSolution() {
+    const starter = file.readFileSync(
+        directoryManager.getStarterFilename(activeProblem, activeLanguage),
+        'utf8');
+    editor.setValue(starter);
+    saveSolution(starter);
+}
+
+function initializeResetCommand() {
+    const dialog = document.getElementById('reset-dialog');
+    document.getElementById('reset-button').addEventListener('click', () => {
+        const problem =
+            pickerProblems.find(problem => problem.name === activeProblem);
+        document.getElementById('reset-dialog-message').textContent =
+            `Your ${LANGUAGE_LABELS[activeLanguage]} code for ` +
+            `"${problemLabel(problem)}" will be replaced with the starter ` +
+            `code. Your current code will be lost.`;
+        dialog.showModal();
+    });
+    // Cancel, Escape and Reset all close the dialog here and then focus the
+    // editor explicitly. Left to itself, closing a dialog returns focus to
+    // the Reset button, so the next Space or Enter typed for the code would
+    // reopen it.
+    const closeDialog = confirmed => {
+        dialog.close();
+        if (confirmed) {
+            resetSolution();
+        }
+        editor.focus();
+    };
+    document.getElementById('reset-dialog-cancel')
+        .addEventListener('click', () => closeDialog(false));
+    document.getElementById('reset-dialog-confirm')
+        .addEventListener('click', () => closeDialog(true));
+    // Escape.
+    dialog.addEventListener('cancel', event => {
+        event.preventDefault();
+        closeDialog(false);
+    });
+}
+
 function initializeCustomTestcaseCommand() {
     addShortcut('t', runCustomTestcase);
     document.getElementById('custom-testcase-button')
@@ -787,6 +830,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     initializeSaveCommand();
     initializeRunCommand();
     initializeCustomTestcaseCommand();
+    initializeResetCommand();
     initializeSettings();
 
     amdRequire(['vs/editor/editor.main'], function() {

@@ -89,7 +89,7 @@ If [uv](https://docs.astral.sh/uv/) is installed, the script runs inside the pro
 cd install/OpenLeetCode
 ./openleetcodeui.sh
 ```
-In the UI, **☰ Problems** (or Cmd/Ctrl+P) opens the problem list, where you can search and filter by difficulty and by whether you have solved the problem. A problem counts as solved in a language, and the list marks it with ✓, while your solution file holds the code that last passed all its testcases. Editing the code removes the ✓ until it passes again. The selector next to **▶ Run** switches between C++ and Python, and **⚙** changes the theme (dark blue, dark grey or light). Cmd/Ctrl+S saves, Cmd/Ctrl+R runs the tests and Cmd/Ctrl+T runs a custom testcase.
+In the UI, **☰ Problems** (or Cmd/Ctrl+P) opens the problem list, where you can search and filter by difficulty and by whether you have solved the problem. A problem counts as solved in a language, and the list marks it with ✓, while your solution file holds the code that last passed all its testcases. Editing the code or resetting it removes the ✓ until it passes again. The selector next to **▶ Run** switches between C++ and Python, and **⚙** changes the theme (dark blue, dark grey or light). **Reset**, above the code, replaces your code with the starter code after asking you to confirm. Cmd/Ctrl+S saves, Cmd/Ctrl+R runs the tests and Cmd/Ctrl+T runs a custom testcase.
 
 Test results show whether your solution was accepted and one green or red box per testcase; select a box to see that testcase's input, your output and the expected output. If your code crashes or raises an error, the result shows the line in your solution where it happened.
 
@@ -118,7 +118,7 @@ After the build succeeds, the following directory structure will be generated:
     - cpp
     - python
 
-Just like for LeetCode, you have one file per language where you solve the problem: **problems/TwoSum/cpp/solution.cpp** for C++ and **problems/TwoSum/python/solution.py** for Python. Reinstalling keeps these files, so your solutions are not overwritten. To add new test cases, you can create a file in the **problems/TwoSum/testcases/** directory with the file extension **.test**, and the solution will automatically be tested against it. Test files whose name starts with `_` only run when requested by name with `--testcase`; the UI uses this for its custom testcase.
+Just like for LeetCode, you have one file per language where you solve the problem: **problems/TwoSum/cpp/solution.cpp** for C++ and **problems/TwoSum/python/solution.py** for Python. Reinstalling keeps these files, so your solutions are not overwritten. The starter code is kept next to them as **solution_starter.cpp** and **solution_starter.py**, which the UI's Reset button restores. To add new test cases, you can create a file in the **problems/TwoSum/testcases/** directory with the file extension **.test**, and the solution will automatically be tested against it. Test files whose name starts with `_` only run when requested by name with `--testcase`; the UI uses this for its custom testcase.
 
 Each problem is described in the ***description.md*** file location in the problem's directory. For example ***problems/TwoSum/description.md***. The problem's LeetCode number and difficulty are in its ***metadata.json***.
 

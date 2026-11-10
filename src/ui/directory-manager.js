@@ -24,6 +24,11 @@ SOLUTION_FILENAMES = {
     cpp: "solution.cpp",
     python: "solution.py",
 };
+// The starter code the installer keeps next to it, for resetting it.
+STARTER_FILENAMES = {
+    cpp: "solution_starter.cpp",
+    python: "solution_starter.py",
+};
 
 function getPathsFile() {
     return path.resolve("filePaths.tmp")
@@ -131,13 +136,20 @@ function calculateDirectories() {
             const userSolutionFilename = path.join(
                 problemDir, language, SOLUTION_FILENAMES[language]);
 
+            const starterFilename = path.join(
+                problemDir, language, STARTER_FILENAMES[language]);
+
             if (!fs.existsSync(userSolutionFilename)) {
                 throw new Error(`User solution file does not exist: ${userSolutionFilename}`);
+            }
+            if (!fs.existsSync(starterFilename)) {
+                throw new Error(`Starter file does not exist: ${starterFilename}. Reinstall to create it.`);
             }
 
             global.localDirDict[problemName][language] = {
                 "solution": readMdFile(solutionFile),
                 "user-solution-filename": userSolutionFilename,
+                "starter-filename": starterFilename,
             };
         });
     });
@@ -183,6 +195,10 @@ class DirectoryManager {
 
     getUserSolutionFilename(problemName, language) {
         return global.dirDict[problemName][language]["user-solution-filename"];
+    }
+
+    getStarterFilename(problemName, language) {
+        return global.dirDict[problemName][language]["starter-filename"];
     }
 
     getLanguages() {

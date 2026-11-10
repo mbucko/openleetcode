@@ -272,6 +272,16 @@ select.button {
     border-bottom: 1px solid var(--border);
 }
 
+.tab-panel-spacer {
+    flex: 1;
+}
+
+.tab-panel-button {
+    align-self: center;
+    padding: 2px 9px;
+    font-size: 12px;
+}
+
 .tab {
     padding: 8px 10px 6px;
     border-bottom: 2px solid transparent;
@@ -627,4 +637,49 @@ code {
     border-top: 1px solid var(--border);
     color: var(--text-muted);
     font-size: 12px;
+}
+
+/* Reset dialog */
+#reset-dialog {
+    max-width: 420px;
+    padding: 18px 20px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--panel);
+    color: var(--text);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+#reset-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+#reset-dialog h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+#reset-dialog p {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.danger-button {
+    border-color: transparent;
+    background-color: var(--fail);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.danger-button:hover {
+    border-color: transparent;
+    filter: brightness(1.08);
 }

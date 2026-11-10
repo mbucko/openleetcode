@@ -30,9 +30,9 @@ After installing, the install directory (for example ``install/OpenLeetCode``) c
     - metadata.json
 - results_validation_schema.json
 
-Each language's test harness lives in its own folder under ``languages``. Each problem has a folder per language with the user's solution file (``solution.cpp``, ``solution.py``), the code that last passed all testcases in the UI (``solution_accepted.*``, which marks the problem solved while it matches the solution file), the reference solution (``solution_expected.*``) and its write-up (``solution.md``), plus the shared testcases, description and metadata (LeetCode number and difficulty).
+Each language's test harness lives in its own folder under ``languages``. Each problem has a folder per language with the user's solution file (``solution.cpp``, ``solution.py``), a copy of its starter code (``solution_starter.*``) that the UI resets it to, the code that last passed all testcases in the UI (``solution_accepted.*``, which marks the problem solved while it matches the solution file), the reference solution (``solution_expected.*``) and its write-up (``solution.md``), plus the shared testcases, description and metadata (LeetCode number and difficulty).
 
-Reinstalling refreshes everything except the users' solution files, which are never overwritten.
+Reinstalling refreshes everything except the users' solution files, which are never overwritten. The starter code copies are refreshed too.
 
 ## Building and Running the Testcases
 

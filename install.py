@@ -16,11 +16,18 @@ else:
 # them, or every reinstall would wipe the user's work.
 USER_SOLUTION_FILES = {"solution.cpp", "solution.py"}
 
+# A pristine copy of the starter code is kept next to each user solution file
+# (e.g. solution_starter.py), so the UI can reset a solution to it.
+def starterFilename(solution_file):
+    root, ext = os.path.splitext(solution_file)
+    return root + "_starter" + ext
+
 def copyKeepingUserSolutions(src, dst):
     in_problems = os.sep + "problems" + os.sep in dst
-    if (in_problems and os.path.basename(dst) in USER_SOLUTION_FILES and
-            os.path.exists(dst)):
-        return dst
+    if in_problems and os.path.basename(dst) in USER_SOLUTION_FILES:
+        shutil.copy2(src, starterFilename(dst))
+        if os.path.exists(dst):
+            return dst
     return shutil.copy2(src, dst)
 
 def installUI(src_dir, build_dir, install_dir):

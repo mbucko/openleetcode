@@ -49,6 +49,16 @@
     <div id="problem-count"></div>
   </div>
   <!-- Problem Drawer END -->
+  <!-- Reset Dialog -->
+  <dialog id="reset-dialog">
+    <h3>Reset to the starter code?</h3>
+    <p id="reset-dialog-message"></p>
+    <div class="dialog-buttons">
+      <button id="reset-dialog-cancel" class="button" type="button" autofocus>Cancel</button>
+      <button id="reset-dialog-confirm" class="button danger-button" type="button">Reset</button>
+    </div>
+  </dialog>
+  <!-- Reset Dialog END -->
   <div id="root-panel">
     <!-- Left Panel -->
     <div id="left-panel" class="card">
@@ -70,6 +80,8 @@
       <div id="top-right-panel" class="card">
         <div class="tab-panel">
           <div class="tab active">Code</div>
+          <span class="tab-panel-spacer"></span>
+          <button id="reset-button" class="button tab-panel-button" title="Reset the code to the starter code">Reset</button>
         </div>
         <div id="user-solution-content"></div>
       </div>
